@@ -1,14 +1,30 @@
+//Filename 		: main.c
+//Description  	: contains the main program
+//Authors 		: Antonin Mignot, David Junqueira
+//Version	 	: 1
+
+//--------- INCLUDES --------
+
+// C-BASED LIBRARIES
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// E-PUCK LIBRARIES
 #include "ch.h"
 #include "hal.h"
 #include "memory_protection.h"
 #include <usbcfg.h>
-#include <main.h>
 #include <chprintf.h>
 #include <motors.h>
+
+// PROJECT MODULES
+#include <main.h>
+#include "sensors/proximity.h"
+
+
+
+//--------- FUNCTIONS ---------
 
 static void serial_start(void)
 {
@@ -25,7 +41,7 @@ static void serial_start(void)
 
 int main(void)
 {
-
+	// Hardware initialization
     halInit();
     chSysInit();
     mpu_init();
@@ -37,10 +53,15 @@ int main(void)
     //inits the motors
     motors_init();
 
+
+    //default infinite loop
     while(1){
 
     }
 }
+
+//--------- STACK PROTECTOR ---------
+
 
 #define STACK_CHK_GUARD 0xe2dee396
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
@@ -49,3 +70,5 @@ void __stack_chk_fail(void)
 {
     chSysHalt("Stack smashing detected");
 }
+
+//--------- END OF FILE ---------

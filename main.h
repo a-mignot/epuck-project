@@ -1,3 +1,8 @@
+//Filename 		: main.h
+//Description  	: called by main.c
+//Authors 		: Antonin Mignot, David Junqueira
+//Version	 	: 1
+
 #ifndef MAIN_H
 #define MAIN_H
 
@@ -5,18 +10,18 @@
 extern "C" {
 #endif
 
-#include "camera/dcmi_camera.h"
-#include "msgbus/messagebus.h"
-#include "parameter/parameter.h"
+//--------- INCLUDES ---------
 
 
 /** Robot wide IPC bus. */
-extern messagebus_t bus;
-
-extern parameter_namespace_t parameter_root;
+//extern messagebus_t bus;
+//
+//extern parameter_namespace_t parameter_root;
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+
+//--------- END OF FILE ---------
