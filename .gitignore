@@ -1,4 +1,6 @@
 build
+.settings
+
 
 # Prerequisites
 *.d
