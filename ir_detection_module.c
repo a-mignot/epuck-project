@@ -11,7 +11,11 @@
 #include <chprintf.h>
 #include "hal.h"
 
+#define DEBUG
 
+#ifdef DEBUG
+#include <debug.h>
+#endif
 //--------- DEFINES --------
 
 #define DEFAULT_IR_TRESHOLD 100
@@ -45,19 +49,6 @@ extern messagebus_t bus;
  *
  * A 0 means that there is no collision detected.
  */
-char* toBinary(int n, int len)
-{
-    char* binary = (char*)malloc(sizeof(char) * len+2);
-    int k = 0;
-    for (unsigned i = (1 << len - 1); i > 0; i = i / 2) {
-        binary[k++] = (n & i) ? '1' : '0';
-    }
-    binary[k] = '\r';
-    binary[k+1] = '\n';
-    binary[k+2] = '\0';
-
-    return binary;
-}
 
 
 uint8_t collision_detection(proximity_msg_t *prox_values){
@@ -97,10 +88,15 @@ static THD_FUNCTION(collision_detection_thd, arg){
 		time = chVTGetSystemTime();
 
 		messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));
+
+
+		uint8_t collision_states = collision_detection(&prox_values);
+
+#ifdef DEBUG
 		//chprintf((BaseSequentialStream *)&SD3,"%Proximity=%-7d Calib. Proximity=%-7d Ambient light=%-7d \r\n"
 				//,prox_values.delta[2],prox_values.delta[2]-prox_values.initValue[2],prox_values.ambient[2]);
-		uint8_t collision_states = collision_detection(&prox_values);
 		chprintf((BaseSequentialStream *)&SD3,toBinary(collision_states,8));
+#endif
 
 		chThdSleepUntilWindowed(time, time + MS2ST(10));
 	}
