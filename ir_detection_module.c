@@ -11,7 +11,7 @@
 #include <chprintf.h>
 #include "hal.h"
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #include <debug.h>
