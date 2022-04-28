@@ -21,8 +21,11 @@
 
 // PROJECT MODULES
 #include <main.h>
+#include <ir_detection_module.h>
 
-
+messagebus_t bus;
+MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
 
 //--------- FUNCTIONS ---------
 
@@ -52,6 +55,10 @@ int main(void)
     usb_start();
     //inits the motors
     motors_init();
+    proximity_start();
+    collision_detection_start();
+
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
 
 
     //default infinite loop
