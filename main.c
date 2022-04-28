@@ -17,10 +17,10 @@
 #include <usbcfg.h>
 #include <chprintf.h>
 #include <motors.h>
+#include "sensors/proximity.h"
 
 // PROJECT MODULES
 #include <main.h>
-#include "sensors/proximity.h"
 
 
 

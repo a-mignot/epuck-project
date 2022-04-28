@@ -1,5 +1,5 @@
 //Filename 		: main.h
-//Description  	: called by main.c
+//Description  	: main header
 //Authors 		: Antonin Mignot, David Junqueira
 //Version	 	: 1
 
