@@ -22,6 +22,7 @@
 // PROJECT MODULES
 #include <main.h>
 #include <ir_detection_module.h>
+#include <leds_animation.h>
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -48,7 +49,7 @@ int main(void)
     halInit();
     chSysInit();
     mpu_init();
-
+    leds_animation_start();
     //starts the serial communication
     serial_start();
     //starts the USB communication
@@ -63,7 +64,6 @@ int main(void)
 
     //default infinite loop
     while(1){
-
     }
 }
 
