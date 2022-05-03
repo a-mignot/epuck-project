@@ -75,6 +75,8 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		doFFT_optimized(FFT_SIZE, micFront_cmplx_input);
 		arm_cmplx_mag_f32(micFront_cmplx_input, micFront_output, FFT_SIZE);
 
+		nb_samples = 0;
+
 
 		//ici il faut appeler la fonction qui update le module de controle de mode
 		//status_update();
