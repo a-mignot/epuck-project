@@ -18,6 +18,7 @@
 void round_led_spin(int RED, int GREEN, int BLUE);
 void clear_top_leds(void);
 void leds_animation_start(void);
+void set_leds_from_byte(int desiredStates);
 #endif
 
 //--------- END OF FILE ---------

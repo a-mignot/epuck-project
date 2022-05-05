@@ -55,15 +55,16 @@ int main(void)
     //starts the USB communication
     usb_start();
     //inits the motors
-    motors_init();
-    proximity_start();
-    collision_detection_start();
+    //motors_init();
+    //proximity_start();
+    //collision_detection_start();
 
     messagebus_init(&bus, &bus_lock, &bus_condvar);
-
-
+    set_leds_from_byte(21);
     //default infinite loop
     while(1){
+    	//round_led_spin(100,0,0);
+    	chThdSleepMilliseconds(100);
     }
 }
 

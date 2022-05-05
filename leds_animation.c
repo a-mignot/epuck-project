@@ -7,6 +7,7 @@
 #include<leds_animation.h>
 #include<leds.h>
 #include<spi_comm.h>
+#include<math.h>
 //--------- DEFINES ---------
 #define ON 1
 #define OFF 0
@@ -14,6 +15,9 @@
 
 
 //--------- FUNCTIONS ---------
+
+
+//Circle animation with leds
 
 void round_led_spin(int RED, int GREEN, int BLUE)
 {
@@ -52,6 +56,27 @@ void round_led_spin(int RED, int GREEN, int BLUE)
 	}
 	else{cycle++;}
 }
+
+//Takes a 8 bit number in entry and lights the led corresponding to each bit.
+
+void set_leds_from_byte(int desiredStates)
+{
+	for (int i=7;i>=0;i--)
+	{
+		if(i%2==0)
+		{
+			set_led(i/2,(desiredStates & (1 << i)) != 0);
+		}
+		else
+		{
+			set_rgb_led(((i-1)/2),RGB_MAX_INTENSITY*((desiredStates & (1 << i)) != 0),0,0);
+		}
+	}
+}
+
+
+
+
 
 void clear_top_leds()
 {
