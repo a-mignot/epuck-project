@@ -8,13 +8,13 @@
 #include "ir_detection_module.h"
 #include <ch.h>
 #include <msgbus/messagebus.h>
-#include <chprintf.h>
 #include "hal.h"
 
 //#define DEBUG
 
 #ifdef DEBUG
 #include <debug.h>
+#include <chprintf.h>
 #endif
 //--------- DEFINES --------
 
