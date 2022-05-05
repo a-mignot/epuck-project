@@ -64,7 +64,6 @@ int main(void)
 
     mic_start(&processAudioData);
 
-
     //default infinite loop
     while(1){
     	chThdSleepMilliseconds(100);

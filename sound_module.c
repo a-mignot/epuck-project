@@ -12,6 +12,14 @@
 #include <arm_const_structs.h>
 #include <audio/microphone.h>
 
+#include <chprintf.h>
+
+//#define DEBUG
+
+#ifdef DEBUG
+#include <debug.h>
+#endif
+
 
 //--------- DEFINES ---------
 #define FFT_SIZE 	1024
@@ -27,8 +35,8 @@
 #define FREQ_E		42	//659.25 Hz (E5)
 #define FREQ_F		45	//698.46 Hz (F5)
 #define FREQ_G		50	//783.99 Hz (G5)
-#define FREQ_A		56	//880.00 Hz (A5)
-#define FREQ_B		63	//987.77 Hz (B5)
+#define FREQ_A		56	//880.00 Hz (A5) (870/recalculer)
+#define FREQ_B		63	//987.77 Hz (B5) (980/recalculer)
 #define MAX_FREQ	65	//we don't analyze after this index to not use resources for nothing
 
 
@@ -61,7 +69,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	//loop to fill the buffers
 	for(uint16_t i = 0 ; i < num_samples ; i+=4){
 		//construct an array of complex numbers. Put 0 to the imaginary part
-		micFront_cmplx_input[nb_samples] = (float)data[i + MIC_FRONT];
+		micFront_cmplx_input[nb_samples] = (float)data[i + MIC_BACK];
 		nb_samples++;
 		micFront_cmplx_input[nb_samples] = 0;
 		nb_samples++;
@@ -79,7 +87,11 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 
 		//ici il faut appeler la fonction qui update le module de controle de mode
-		//status_update();
+#ifdef DEBUG
+		pitch output = pitch_finder(micFront_output);
+		char note = freqToPitchName(output);
+		chprintf((BaseSequentialStream *)&SD3,"%note:%-c \r \n",note);
+#endif
 
 	}
 }

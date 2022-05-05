@@ -1,7 +1,9 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-char* toBinary(int n, int len);
+#include <sound_module.h>
 
+char* toBinary(int n, int len);
+char freqToPitchName(pitch note);
 
 #endif
