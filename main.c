@@ -23,6 +23,7 @@
 #include <main.h>
 #include <ir_detection_module.h>
 #include <sound_module.h>
+#include <command_module.h>
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -60,6 +61,7 @@ int main(void)
     collision_detection_start();
     messagebus_init(&bus, &bus_lock, &bus_condvar);
     mic_start(&processAudioData);
+    command_start();
 
     //default infinite loop
     while(1){

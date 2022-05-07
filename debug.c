@@ -11,7 +11,7 @@ char* toBinary(int n, int len)
     // !!! WARNING LEADS TO CRASH !!!
 
     int k = 0;
-    for (unsigned i = (1 << len - 1); i > 0; i = i / 2) {
+    for (unsigned i = (1 << (len - 1)); i > 0; i = i / 2) {
         binary[k++] = (n & i) ? '1' : '0';
     }
     binary[k] = '\r';
@@ -42,10 +42,6 @@ char freqToPitchName(pitch note)
 	default:
 		return '0';
 	}
-
-
-
-
 }
 
 

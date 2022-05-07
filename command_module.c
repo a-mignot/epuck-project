@@ -6,15 +6,20 @@
 
 
 //--------- INCLUDES --------
+#include <ch.h>
+#include "hal.h"
+
 #include <command_module.h>
 #include <sound_module.h>
 #include <motor_sequence.h>
+#include <chprintf.h>
 
 //--------- DEFINES ---------
 
 
 //--------- FUNCTIONS ---------
 
+void launchSequenceFromPitch(pitch note);
 
 
 //main thread qui crée les threads de séquence
@@ -25,9 +30,42 @@ static THD_FUNCTION(command_thd, arg){
 
 
 	for(;;){
+		set_pitch_changed(0);
+		launchSequenceFromPitch(get_current_pitch());
 	}
 
 }
+
+
+void launchSequenceFromPitch(pitch note)
+{
+	switch(note)
+	{
+	case PITCH_C:
+		//do sequence 1
+		chprintf((BaseSequentialStream *)&SD3,"seq1\r\n");
+	case PITCH_D:
+		//do sequence 2
+		chprintf((BaseSequentialStream *)&SD3,"seq2\r\n");
+	case PITCH_E:
+		//do sequence 3
+		chprintf((BaseSequentialStream *)&SD3,"seq3\r\n");
+	case PITCH_F:
+		//do sequence 4
+	case PITCH_G:
+		//do sequence 5
+	case PITCH_A:
+		//do sequence 6
+	case PITCH_B:
+		//do sequence 7
+	default:
+		chprintf((BaseSequentialStream *)&SD3,"default\r\n");
+	}
+}
+
+
+
+
 
 
 
