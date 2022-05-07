@@ -18,10 +18,12 @@
 #include <chprintf.h>
 #include <motors.h>
 #include "sensors/proximity.h"
+#include "audio/microphone.h"
 
 // PROJECT MODULES
 #include <main.h>
 #include <ir_detection_module.h>
+#include <sound_module.h>
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -60,9 +62,11 @@ int main(void)
 
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
+    mic_start(&processAudioData);
 
     //default infinite loop
     while(1){
+    	chThdSleepMilliseconds(100);
 
     }
 }

@@ -3,6 +3,7 @@
 
 
 
+
 //returns a string of a binary number n of length len
 char* toBinary(int n, int len)
 {
@@ -19,3 +20,36 @@ char* toBinary(int n, int len)
 
     return binary;
 }
+
+char freqToPitchName(pitch note)
+{
+	switch(note)
+	{
+	case PITCH_C:
+		return 'C';
+	case PITCH_D:
+		return 'D';
+	case PITCH_E:
+		return 'E';
+	case PITCH_F:
+		return 'F';
+	case PITCH_G:
+		return 'G';
+	case PITCH_A:
+		return 'A';
+	case PITCH_B:
+		return 'B';
+	default:
+		return '0';
+	}
+
+
+
+
+}
+
+
+
+
+
+
