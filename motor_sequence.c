@@ -23,7 +23,7 @@
 
 //--------- DEFINES ---------
 
-#define DEFAULT_SPEED 1000 //in step/s -> corresponds to 13 cm/s !!!NEEDS TO BE VERIFIED EXPERIMENTALLY!!!
+#define MAX_SPEED 1000 //in step/s -> corresponds to 13 cm/s !!!NEEDS TO BE VERIFIED EXPERIMENTALLY!!!
 #define DELTA_T 10 //in ms
 #define MOTOR_STOP_SPEED 0 //in step/s
 #define COLLISION_AVOIDANCE_ANGLE 90 //in °
@@ -36,86 +36,112 @@
 #define BACK_LEFT_IR_MASK 	0b00010000
 #define BACK_RIGHT_IR_MASK 	0b00001000
 
-#define MOVE_FORWARD 1
-#define MOVE_BACKWARD -1
+#define NO_ROTATION 0
+#define ACLOCKWISE_ROTATION 1
+#define CLOCKWISE_ROTATION -1
+
+#define DIR_FORWARD 1
+#define DIR_BACKWARD -1
 
 #define WHEEL_PERIMETER 13
+#define WHEEL_DISTANCE      5.35f    //cm
+#define PI 3.14159265f
 
 
 //-------- MACROS ----------
 
-
-#define CM_TO_STEPS(DIST) (int)(DIST/WHEEL_PERIMETER*1000)
-
-
+#define CM_TO_STEPS(DIST) 	(int)((DIST*1000)/WHEEL_PERIMETER)
+#define DEG_TO_STEPS(DEG) 	CM_TO_STEPS(DEG_TO_RAD(DEG)*WHEEL_DISTANCE/2.0f)
+#define DEG_TO_RAD(DEG) 	(DEG*PI/180.0f)
 
 //--------- FUNCTIONS ---------
 
-void move_straight(int16_t steps_needed){
-
-	if(steps_needed > 0){
-		move_loop_until(steps_needed,MOVE_FORWARD);
+void move_straight(uint32_t cm_needed, int16_t speed){
+	if(speed != 0 && cm_needed != 0){
+		move_control_loop(CM_TO_STEPS(cm_needed),NO_ROTATION,speed);
 	}
-	else if(steps_needed < 0){
-		move_loop_until(steps_needed,MOVE_BACKWARD);
-	}
-
-	right_motor_set_speed(MOTOR_STOP_SPEED);
-	left_motor_set_speed(MOTOR_STOP_SPEED);
-
-
+	move_stop();
 }
 
-///VRAIMENT AUCUNE IDEE POUR LE NOM DE LA FONCTION ---> RENAME PLEASE
-void move_loop_until(int16_t steps_needed, int8_t direction){
+//positive speed : anticlockwise rotation
+//negative speed : clockwise rotation
+void move_rotate(uint32_t degree, int16_t speed){
+	if(degree != 0){
+		if(speed > 0){
+			move_control_loop(DEG_TO_STEPS(degree),ACLOCKWISE_ROTATION,speed);
+		}
+		if(speed < 0){
+			move_control_loop(DEG_TO_STEPS(degree),CLOCKWISE_ROTATION,speed);
+		}
+	}
+	move_stop();
+}
+
+void move_triangle(uint32_t vertice_size, int16_t speed){
+	while(1){
+		move_straight(vertice_size,speed);
+		if(get_pitch_changed()) return;
+		move_rotate(120,speed);
+		if(get_pitch_changed()) return;
+	}
+}
+
+
+//This function is the main control loop used to control the motors to the desired speed
+//It can only handle same speed for the 2 motors which means it is suitable for rotation
+//of the robot on itself and going forward and backward i.e no curved trajectories
+void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed){
+
 	systime_t time;
-	for(int16_t i = direction*steps_needed ; i>=0 ; i =- DEFAULT_SPEED*(DELTA_T/1000)){
+	int8_t direction = (speed > 0) ? DIR_FORWARD : DIR_BACKWARD;
+
+	for(uint32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
+		//we multiply by direction to always subtract a positive value from i
 		time = chVTGetSystemTime();
 
-		uint8_t collision_states = get_collision_states();
-		obstacle_to_avoid(direction,collision_states);
+		if(rotation == NO_ROTATION){
+			uint8_t collision_states = get_collision_states();
+			obstacle_to_avoid(direction,collision_states);
+			right_motor_set_speed(speed);
+			left_motor_set_speed(speed);
+		}
 
-		right_motor_set_speed(direction*DEFAULT_SPEED);
-		left_motor_set_speed(direction*DEFAULT_SPEED);
+		//if the robots rotates on itself obstacle_to_avoid is useless
+		//and we avoid an infinite recursion of this move_control_loop
+		if(rotation == ACLOCKWISE_ROTATION || rotation == CLOCKWISE_ROTATION){
+			right_motor_set_speed(speed);
+			left_motor_set_speed(-speed);
+		}
+		else return; //rotation parameter is badly given to function
 
-		if(get_pitch_changed()){//la fonction get_pitch_changed acquéris un static pitch_changed du module commande qui indique si le pitch a changé
+		if(get_pitch_changed()){//la fonction get_pitch_changed acquéris un static pitch_changed du module sound qui indique si le pitch a changé
 			return;
 			//dans le thread il faut que il'y ait un truc qui dès que tu return, il check
 			//le static actual_pitch puis il déclenche la prochaine fonction de séquence
 		}
-
 		chThdSleepUntilWindowed(time, time + MS2ST(DELTA_T));
 	}
 }
 
 
-//if degree is positive turn anticlockwise (trigonometric-wise)
-//if degree is negative turn clockwise (antitrigonometric-wise)
-void move_rotate(int16_t degree){
-
-}
-
-void move_triangle(){
-
+void move_stop(){
+	right_motor_set_speed(MOTOR_STOP_SPEED);
+	left_motor_set_speed(MOTOR_STOP_SPEED);
 }
 
 
-//if the robot is rotating on itself we don't need to call this function as it will not collide with anything
 //direction : 1 	- robot is going forward
 //direction : -1 	- robots is going backward
-//PEUT-ETRE FAIRE UN ENUM POUR LES DIRECTIONS
-
-
 void obstacle_to_avoid(int8_t direction, uint8_t collision_states){
-
-	if(direction >0 && (collision_states & FRONT_IR_MASK)){
-		if(collision_states & FRONT_RIGHT_IR_MASK)	move_rotate(COLLISION_AVOIDANCE_ANGLE) ;
-		if(collision_states & FRONT_LEFT_IR_MASK)	move_rotate(-COLLISION_AVOIDANCE_ANGLE);
+//the response of the system must be fast so we like to put max_speed for the rotation
+	if(direction == DIR_FORWARD  && (collision_states & FRONT_IR_MASK)){
+		if(collision_states & FRONT_RIGHT_IR_MASK) move_rotate(DEG_TO_STEPS(COLLISION_AVOIDANCE_ANGLE), MAX_SPEED);
+		if(collision_states & FRONT_LEFT_IR_MASK)  move_rotate(DEG_TO_STEPS(COLLISION_AVOIDANCE_ANGLE),-MAX_SPEED);
 
 	}
-	if(direction < 0 && (collision_states & BACK_IR_MASK)){
-		if(collision_states & BACK_RIGHT_IR_MASK)	move_rotate(-COLLISION_AVOIDANCE_ANGLE);
-		if(collision_states & BACK_LEFT_IR_MASK)	move_rotate(COLLISION_AVOIDANCE_ANGLE) ;
+	if(direction == DIR_BACKWARD && (collision_states & BACK_IR_MASK)){
+		if(collision_states & BACK_RIGHT_IR_MASK)  move_rotate(DEG_TO_STEPS(COLLISION_AVOIDANCE_ANGLE),-MAX_SPEED);
+		if(collision_states & BACK_LEFT_IR_MASK)   move_rotate(DEG_TO_STEPS(COLLISION_AVOIDANCE_ANGLE), MAX_SPEED);
 	}
 
 }

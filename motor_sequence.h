@@ -15,10 +15,11 @@
 
 //--------- PROTOTYPES ---------
 
-void move_straight(int16_t distance);;
-void move_rotate(int16_t degree);
+void move_straight(uint32_t cm_needed, int16_t speed);
+void move_rotate(uint32_t degree, int16_t speed);
 void move_triangle(void);
-void move_loop_until(int16_t steps_needed, int8_t direction);
+void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed);
+void move_stop(void);
 void obstacle_to_avoid(int8_t direction, uint8_t collision_states);
 
 #endif
