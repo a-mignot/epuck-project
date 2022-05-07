@@ -6,9 +6,9 @@
 
 
 //--------- INCLUDES --------
-#include<command_module.h>
-#include<motors.h>
-
+#include <command_module.h>
+#include <sound_module.h>
+#include <motor_sequence.h>
 
 //--------- DEFINES ---------
 

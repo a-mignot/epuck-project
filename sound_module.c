@@ -46,6 +46,9 @@
 static float micFront_cmplx_input[2 * FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 
+static uint8_t pitch_changed = 0; //value is 0 if pitch didn't change, 1 if it did
+static pitch current_pitch = 7;
+
 
 //--------- FUNCTIONS ---------
 
@@ -85,10 +88,17 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 		nb_samples = 0;
 
+		//read current pitch and update pitch_changed and current_pitch depending on receiver information
 
-		//ici il faut appeler la fonction qui update le module de controle de mode
-#ifdef DEBUG
 		pitch output = pitch_finder(micFront_output);
+		if(current_pitch != output)
+		{
+			current_pitch = output;
+			pitch_changed = 1;
+		}
+
+
+#ifdef DEBUG
 		char note = freqToPitchName(output);
 		chprintf((BaseSequentialStream *)&SD3,"%note:%-c \r \n",note);
 #endif
@@ -117,6 +127,23 @@ pitch pitch_finder(float* data){
 	else return PITCH_ERR;
 
 }
+
+int get_pitch_changed()
+{
+	return pitch_changed;
+}
+
+void set_pitch_changed(uint8_t new_state)
+{
+	pitch_changed = new_state;
+}
+
+
+int get_current_pitch()
+{
+	return current_pitch;
+}
+
 
 
 //--------- END OF FILE ---------

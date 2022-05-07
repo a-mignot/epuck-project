@@ -8,13 +8,13 @@
 #include "ir_detection_module.h"
 #include <ch.h>
 #include <msgbus/messagebus.h>
-#include <chprintf.h>
 #include "hal.h"
 
 //#define DEBUG
 
 #ifdef DEBUG
 #include <debug.h>
+#include <chprintf.h>
 #endif
 //--------- DEFINES --------
 
@@ -37,8 +37,11 @@
 #define IR4_THRESHOLD IR3_THRESHOLD
 
 extern messagebus_t bus;
+static uint8_t collision_states = 0;
 
 //--------- FUNCTIONS ---------
+
+
 
 
 /* input : proximity sensors values
@@ -90,7 +93,7 @@ static THD_FUNCTION(collision_detection_thd, arg){
 		messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));
 
 
-		uint8_t collision_states = collision_detection(&prox_values);
+		collision_states = collision_detection(&prox_values);
 
 #ifdef DEBUG
 		//chprintf((BaseSequentialStream *)&SD3,"%Proximity=%-7d Calib. Proximity=%-7d Ambient light=%-7d \r\n"
@@ -104,8 +107,13 @@ static THD_FUNCTION(collision_detection_thd, arg){
 }
 
 void collision_detection_start(){
-	 static THD_WORKING_AREA(collision_detection_thd_wa, 1024);
-	 chThdCreateStatic(collision_detection_thd_wa, sizeof(collision_detection_thd_wa), NORMALPRIO, collision_detection_thd, NULL);
+	static THD_WORKING_AREA(collision_detection_thd_wa, 1024);
+	chThdCreateStatic(collision_detection_thd_wa, sizeof(collision_detection_thd_wa), NORMALPRIO, collision_detection_thd, NULL);
+}
+
+uint8_t get_collision_states()
+{
+	return collision_states;
 }
 
 

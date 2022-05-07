@@ -15,10 +15,9 @@
 #include "hal.h"
 #include "memory_protection.h"
 #include <usbcfg.h>
-#include <chprintf.h>
-#include <motors.h>
 #include "sensors/proximity.h"
 #include "audio/microphone.h"
+#include <motors.h>
 
 // PROJECT MODULES
 #include <main.h>
@@ -59,15 +58,11 @@ int main(void)
     motors_init();
     proximity_start();
     collision_detection_start();
-
     messagebus_init(&bus, &bus_lock, &bus_condvar);
-
     mic_start(&processAudioData);
 
     //default infinite loop
     while(1){
-    	chThdSleepMilliseconds(100);
-
     }
 }
 

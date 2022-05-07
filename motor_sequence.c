@@ -19,6 +19,8 @@
 #include <ch.h>
 
 #include <motor_sequence.h>
+#include <sound_module.h>
+#include <ir_detection_module.h>
 
 
 //--------- DEFINES ---------
@@ -83,13 +85,14 @@ void move_loop_until(int16_t steps_needed, int8_t direction){
 
 //if degree is positive turn anticlockwise (trigonometric-wise)
 //if degree is negative turn clockwise (antitrigonometric-wise)
-void move_rotate(int16_t degree){
 
-}
+//void move_rotate(int16_t degree){
+//
+//}
 
-void move_triangle(){
-
-}
+//void move_triangle(){
+//
+//}
 
 
 //if the robot is rotating on itself we don't need to call this function as it will not collide with anything
