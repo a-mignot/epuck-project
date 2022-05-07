@@ -15,8 +15,7 @@
 
 //--------- PROTOTYPES ---------
 
-void move_forward(int16_t distance);
-void move_backward(void);
+void move_straight(int16_t distance);;
 void move_rotate(int16_t degree);
 void move_triangle(void);
 void move_loop_until(int16_t steps_needed, int8_t direction);

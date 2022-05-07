@@ -39,6 +39,14 @@
 #define MOVE_FORWARD 1
 #define MOVE_BACKWARD -1
 
+#define WHEEL_PERIMETER 13
+
+
+//-------- MACROS ----------
+
+
+#define CM_TO_STEPS(DIST) (int)(DIST/WHEEL_PERIMETER*1000)
+
 
 
 //--------- FUNCTIONS ---------
@@ -51,10 +59,10 @@ void move_straight(int16_t steps_needed){
 	else if(steps_needed < 0){
 		move_loop_until(steps_needed,MOVE_BACKWARD);
 	}
-	else{//steps_needed = 0 in this else
-		right_motor_set_speed(MOTOR_STOP_SPEED);
-		left_motor_set_speed(MOTOR_STOP_SPEED);
-	}
+
+	right_motor_set_speed(MOTOR_STOP_SPEED);
+	left_motor_set_speed(MOTOR_STOP_SPEED);
+
 
 }
 
@@ -64,11 +72,11 @@ void move_loop_until(int16_t steps_needed, int8_t direction){
 	for(int16_t i = direction*steps_needed ; i>=0 ; i =- DEFAULT_SPEED*(DELTA_T/1000)){
 		time = chVTGetSystemTime();
 
-		right_motor_set_speed(direction*DEFAULT_SPEED);
-		left_motor_set_speed(direction*DEFAULT_SPEED);
-
 		uint8_t collision_states = get_collision_states();
 		obstacle_to_avoid(direction,collision_states);
+
+		right_motor_set_speed(direction*DEFAULT_SPEED);
+		left_motor_set_speed(direction*DEFAULT_SPEED);
 
 		if(get_pitch_changed()){//la fonction get_pitch_changed acquéris un static pitch_changed du module commande qui indique si le pitch a changé
 			return;
