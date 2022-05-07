@@ -25,7 +25,7 @@
 
 #define DEFAULT_SPEED 1000 //in step/s -> corresponds to 13 cm/s !!!NEEDS TO BE VERIFIED EXPERIMENTALLY!!!
 #define DELTA_T 10 //in ms
-#define MOTOR_STOP 0
+#define MOTOR_STOP_SPEED 0 //in step/s
 #define COLLISION_AVOIDANCE_ANGLE 90 //in °
 
 
@@ -52,8 +52,8 @@ void move_straight(int16_t steps_needed){
 		move_loop_until(steps_needed,MOVE_BACKWARD);
 	}
 	else{//steps_needed = 0 in this else
-		right_motor_set_speed(MOTOR_STOP);
-		left_motor_set_speed(MOTOR_STOP);
+		right_motor_set_speed(MOTOR_STOP_SPEED);
+		left_motor_set_speed(MOTOR_STOP_SPEED);
 	}
 
 }
