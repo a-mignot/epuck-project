@@ -86,6 +86,25 @@ void move_triangle(uint32_t vertice_size, int16_t speed){
 	}
 }
 
+void move_straight_back_forth(uint32_t size, int16_t speed){
+	while(1){
+		move_straight(size,speed);
+		if(get_pitch_changed()) return;
+		move_straight(size,-speed);
+		if(get_pitch_changed()) return;
+	}
+}
+
+
+void move_rotate_back_forth(uint32_t deg, int16_t speed){
+	while(1){
+		move_rotate(deg,speed);
+		if(get_pitch_changed()) return;
+		move_rotate(deg,-speed);
+		if(get_pitch_changed()) return;
+	}
+}
+
 
 //This function is the main control loop used to control the motors to the desired speed
 //It can only handle same speed for the 2 motors which means it is suitable for rotation
