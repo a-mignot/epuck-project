@@ -13,6 +13,8 @@
 //--------- DEFINES ---------
 
 #define FFT_SIZE 	1024
+#define PITCH_UNCHANGED 0
+#define PITCH_CHANGED 1
 
 //--------- TYPEDEFS/STRUCT/ENUM ---------
 typedef struct complex_float{

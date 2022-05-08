@@ -111,6 +111,8 @@ void collision_detection_start(){
 	chThdCreateStatic(collision_detection_thd_wa, sizeof(collision_detection_thd_wa), NORMALPRIO, collision_detection_thd, NULL);
 }
 
+//getters and setters for the module static variables that are needed externally
+
 uint8_t get_collision_states()
 {
 	return collision_states;

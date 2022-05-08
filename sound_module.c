@@ -46,8 +46,8 @@
 static float micFront_cmplx_input[2 * FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 
-static uint8_t pitch_changed = 0; //value is 0 if pitch didn't change, 1 if it did
-static pitch current_pitch = 7;
+static uint8_t pitch_changed = PITCH_UNCHANGED; //value is 0 if pitch didn't change since last sampling, 1 if it did
+static pitch current_pitch = PITCH_ERR; //default value for "no pitch in range received"
 
 
 //--------- FUNCTIONS ---------
@@ -56,7 +56,6 @@ static pitch current_pitch = 7;
 void doFFT_optimized(uint16_t size, float* complex_buffer){
 	if(size == 1024)
 		arm_cfft_f32(&arm_cfft_sR_f32_len1024, complex_buffer, 0, 1);
-
 }
 
 void processAudioData(int16_t *data, uint16_t num_samples){
@@ -91,12 +90,12 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		//read current pitch and update pitch_changed and current_pitch depending on receiver information
 
 		pitch output = pitch_finder(micFront_output);
-		if(current_pitch != output)
+
+		if(current_pitch != output) // à noter qu'actuellement le pitch est considéré comme changé si il capte default après une note quelconque
 		{
 			current_pitch = output;
-			pitch_changed = 1;
+			pitch_changed = PITCH_CHANGED;
 		}
-
 
 #ifdef DEBUG
 		char note = freqToPitchName(output);
@@ -127,6 +126,10 @@ pitch pitch_finder(float* data){
 	else return PITCH_ERR;
 
 }
+
+
+//getters and setters for the module static variables that are needed externally
+
 
 int get_pitch_changed()
 {
