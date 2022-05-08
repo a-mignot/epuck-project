@@ -43,8 +43,8 @@
 //--------- STATIC VARIABLES ---------
 
 
-static float micFront_cmplx_input[2 * FFT_SIZE];
-static float micFront_output[FFT_SIZE];
+static float micBack_cmplx_input[2 * FFT_SIZE];
+static float micBack_output[FFT_SIZE];
 
 static uint8_t pitch_changed = PITCH_UNCHANGED; //value is 0 if pitch didn't change since last sampling, 1 if it did
 static pitch current_pitch = PITCH_ERR; //default value for "no pitch in range received"
@@ -71,9 +71,9 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	//loop to fill the buffers
 	for(uint16_t i = 0 ; i < num_samples ; i+=4){
 		//construct an array of complex numbers. Put 0 to the imaginary part
-		micFront_cmplx_input[nb_samples] = (float)data[i + MIC_BACK];
+		micBack_cmplx_input[nb_samples] = (float)data[i + MIC_BACK];
 		nb_samples++;
-		micFront_cmplx_input[nb_samples] = 0;
+		micBack_cmplx_input[nb_samples] = 0;
 		nb_samples++;
 
 		//stop when buffer is full
@@ -82,14 +82,14 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		}
 	}
 	if(nb_samples >= (2 * FFT_SIZE)){
-		doFFT_optimized(FFT_SIZE, micFront_cmplx_input);
-		arm_cmplx_mag_f32(micFront_cmplx_input, micFront_output, FFT_SIZE);
+		doFFT_optimized(FFT_SIZE, micBack_cmplx_input);
+		arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
 
 		nb_samples = 0;
 
 		//read current pitch and update pitch_changed and current_pitch depending on receiver information
 
-		pitch output = pitch_finder(micFront_output);
+		pitch output = pitch_finder(micBack_output);
 
 		if(current_pitch != output) // à noter qu'actuellement le pitch est considéré comme changé si il capte default après une note quelconque
 		{
