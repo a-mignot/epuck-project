@@ -106,6 +106,13 @@ void move_rotate_back_forth(uint32_t degree, int16_t speed){
 	}
 }
 
+void move_circle(float radius, int8_t rotation, int16_t speed){
+	while(1){
+		move_control_loop_curve(DEG_TO_STEPS(360,radius),rotation,speed,radius);
+		if(get_pitch_changed()) return;
+	}
+}
+
 
 //This function is the main control loop used to control the motors to the desired speed
 //It can only handle same speed for the 2 motors which means it is suitable for rotation
@@ -128,7 +135,7 @@ void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed){
 
 		//if the robots rotates on itself obstacle_to_avoid is useless
 		//and we avoid an infinite recursion of this move_control_loop
-		if(rotation == ACLOCKWISE_ROTATION || rotation == CLOCKWISE_ROTATION){
+		else if(rotation == ACLOCKWISE_ROTATION || rotation == CLOCKWISE_ROTATION){
 			right_motor_set_speed(speed);
 			left_motor_set_speed(-speed);
 		}
@@ -143,20 +150,21 @@ void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed){
 	}
 }
 
-void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t speed, uint16_t radius){
+
+void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t speed, float radius){
 
 	systime_t time;
 	int8_t direction = (speed > 0) ? DIR_FORWARD : DIR_BACKWARD;
 
 
-	int16_t speed_ext = speed*((float)radius+WHEEL_DISTANCE)/WHEEL_RADIUS;
+	int16_t speed_ext = speed*((radius+WHEEL_DISTANCE)/WHEEL_RADIUS);
 
 	//speed verification
 	if(speed_ext > MAX_SPEED){
 		speed_ext = MAX_SPEED;
-		speed = speed_ext*(WHEEL_RADIUS)/((float)radius+WHEEL_DISTANCE);
+		speed = speed_ext*(WHEEL_RADIUS)/(radius+WHEEL_DISTANCE);
 	}
-	int16_t speed_int = speed*((float)radius-WHEEL_DISTANCE)/WHEEL_RADIUS;;
+	int16_t speed_int = speed*((radius-WHEEL_DISTANCE)/WHEEL_RADIUS);
 
 
 	for(uint32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
@@ -169,7 +177,7 @@ void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t spe
 			right_motor_set_speed(speed_ext);
 			left_motor_set_speed(speed_int);
 		}
-		if(rotation == CLOCKWISE_ROTATION){
+		else if(rotation == CLOCKWISE_ROTATION){
 			uint8_t collision_states = get_collision_states();
 			obstacle_to_avoid(direction,collision_states);
 			right_motor_set_speed(speed_int);
