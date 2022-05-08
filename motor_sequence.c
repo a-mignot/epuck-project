@@ -43,16 +43,17 @@
 #define DIR_FORWARD 1
 #define DIR_BACKWARD -1
 
-#define WHEEL_PERIMETER 13
-#define WHEEL_DISTANCE      5.35f    //cm
-#define PI 3.14159265f
+#define WHEEL_PERIMETER 	13
+#define WHEEL_DISTANCE      2.675f    //cm distance from center of the robot one wheel
+#define PI 					3.14159265f
+#define WHEEL_RADIUS 		2.069f    //cm  =13/2pi
 
 
 //-------- MACROS ----------
 
-#define CM_TO_STEPS(DIST) 	(int)((DIST*1000)/WHEEL_PERIMETER)
-#define DEG_TO_STEPS(DEG) 	CM_TO_STEPS(DEG_TO_RAD(DEG)*WHEEL_DISTANCE/2.0f)
-#define DEG_TO_RAD(DEG) 	(DEG*PI/180.0f)
+#define CM_TO_STEPS(DIST) 			(int)((DIST*1000)/WHEEL_PERIMETER)
+#define DEG_TO_STEPS(DEG,RADIUS) 	CM_TO_STEPS(DEG_TO_RAD(DEG)*RADIUS)
+#define DEG_TO_RAD(DEG) 			(DEG*PI/180.0f)
 
 //--------- FUNCTIONS ---------
 
@@ -68,10 +69,10 @@ void move_straight(uint32_t cm_needed, int16_t speed){
 void move_rotate(uint32_t degree, int16_t speed){
 	if(degree != 0){
 		if(speed > 0){
-			move_control_loop(DEG_TO_STEPS(degree),ACLOCKWISE_ROTATION,speed);
+			move_control_loop(DEG_TO_STEPS(degree,WHEEL_DISTANCE),ACLOCKWISE_ROTATION,speed);
 		}
 		if(speed < 0){
-			move_control_loop(DEG_TO_STEPS(degree),CLOCKWISE_ROTATION,speed);
+			move_control_loop(DEG_TO_STEPS(degree,WHEEL_DISTANCE),CLOCKWISE_ROTATION,speed);
 		}
 	}
 	move_stop();
@@ -96,11 +97,11 @@ void move_straight_back_forth(uint32_t size, int16_t speed){
 }
 
 
-void move_rotate_back_forth(uint32_t deg, int16_t speed){
+void move_rotate_back_forth(uint32_t degree, int16_t speed){
 	while(1){
-		move_rotate(deg,speed);
+		move_rotate(degree,speed);
 		if(get_pitch_changed()) return;
-		move_rotate(deg,-speed);
+		move_rotate(degree,-speed);
 		if(get_pitch_changed()) return;
 	}
 }
@@ -142,6 +143,50 @@ void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed){
 	}
 }
 
+void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t speed, uint16_t radius){
+
+	systime_t time;
+	int8_t direction = (speed > 0) ? DIR_FORWARD : DIR_BACKWARD;
+
+
+	int16_t speed_ext = speed*((float)radius+WHEEL_DISTANCE)/WHEEL_RADIUS;
+
+	//speed verification
+	if(speed_ext > MAX_SPEED){
+		speed_ext = MAX_SPEED;
+		speed = speed_ext*(WHEEL_RADIUS)/((float)radius+WHEEL_DISTANCE);
+	}
+	int16_t speed_int = speed*((float)radius-WHEEL_DISTANCE)/WHEEL_RADIUS;;
+
+
+	for(uint32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
+		//we multiply by direction to always subtract a positive value from i
+		time = chVTGetSystemTime();
+
+		if(rotation == ACLOCKWISE_ROTATION){
+			uint8_t collision_states = get_collision_states();
+			obstacle_to_avoid(direction,collision_states);
+			right_motor_set_speed(speed_ext);
+			left_motor_set_speed(speed_int);
+		}
+		if(rotation == CLOCKWISE_ROTATION){
+			uint8_t collision_states = get_collision_states();
+			obstacle_to_avoid(direction,collision_states);
+			right_motor_set_speed(speed_int);
+			left_motor_set_speed(speed_ext);
+		}
+
+		else return; //rotation parameter is badly given to function
+
+		if(get_pitch_changed()){//la fonction get_pitch_changed acquéris un static pitch_changed du module sound qui indique si le pitch a changé
+			return;
+			//dans le thread il faut que il'y ait un truc qui dès que tu return, il check
+			//le static actual_pitch puis il déclenche la prochaine fonction de séquence
+		}
+		chThdSleepUntilWindowed(time, time + MS2ST(DELTA_T));
+	}
+}
+
 
 void move_stop(){
 	right_motor_set_speed(MOTOR_STOP_SPEED);
@@ -154,13 +199,13 @@ void move_stop(){
 void obstacle_to_avoid(int8_t direction, uint8_t collision_states){
 //the response of the system must be fast so we like to put max_speed for the rotation
 	if(direction == DIR_FORWARD  && (collision_states & FRONT_IR_MASK)){
-		if(collision_states & FRONT_RIGHT_IR_MASK) move_rotate(DEG_TO_STEPS(COLLISION_AVOIDANCE_ANGLE), MAX_SPEED);
-		if(collision_states & FRONT_LEFT_IR_MASK)  move_rotate(DEG_TO_STEPS(COLLISION_AVOIDANCE_ANGLE),-MAX_SPEED);
+		if(collision_states & FRONT_RIGHT_IR_MASK) move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
+		if(collision_states & FRONT_LEFT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
 
 	}
 	if(direction == DIR_BACKWARD && (collision_states & BACK_IR_MASK)){
-		if(collision_states & BACK_RIGHT_IR_MASK)  move_rotate(DEG_TO_STEPS(COLLISION_AVOIDANCE_ANGLE),-MAX_SPEED);
-		if(collision_states & BACK_LEFT_IR_MASK)   move_rotate(DEG_TO_STEPS(COLLISION_AVOIDANCE_ANGLE), MAX_SPEED);
+		if(collision_states & BACK_RIGHT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
+		if(collision_states & BACK_LEFT_IR_MASK)   move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
 	}
 
 }
