@@ -1,6 +1,6 @@
 //Filename 		: command_module.c
-//Description  	: This module contains functions that define the ePuck response
-//to the values measured by sensors (peut être trop vague)
+//Description  	: This module contains functions that trigger motor sequences of the robot depending
+//on the pitch received from sound_module
 //Authors 		: Antonin Mignot, David Junqueira
 //Version	 	: 1
 
@@ -17,8 +17,6 @@
 
 
 //--------- FUNCTIONS ---------
-
-void launchSequenceFromPitch(pitch note); //function definition
 
 
 //Thread that selects the sequence to launch according to the received note from sound_module

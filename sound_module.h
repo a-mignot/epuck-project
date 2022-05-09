@@ -17,10 +17,6 @@
 #define PITCH_CHANGED 1
 
 //--------- TYPEDEFS/STRUCT/ENUM ---------
-typedef struct complex_float{
-	float real;
-	float imag;
-}complex_float;
 
 typedef enum pitch{
 				   PITCH_C,
@@ -33,16 +29,14 @@ typedef enum pitch{
 				   PITCH_ERR
 } pitch;
 
-
-
 //--------- PROTOTYPES ---------
-
 
 void doFFT_optimized(uint16_t size, float* complex_buffer);
 void processAudioData(int16_t *data, uint16_t num_samples);
 pitch pitch_finder(float* data);
-int get_pitch_changed(void);
+
 void set_pitch_changed(uint8_t new_state);
+int get_pitch_changed(void);
 int get_current_pitch(void);
 
 

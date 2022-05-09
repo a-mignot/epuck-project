@@ -42,8 +42,6 @@ static uint8_t collision_states = 0;
 //--------- FUNCTIONS ---------
 
 
-
-
 /* input : proximity sensors values
  * output: 8 bits binary number.
  *
@@ -52,8 +50,6 @@ static uint8_t collision_states = 0;
  *
  * A 0 means that there is no collision detected.
  */
-
-
 uint8_t collision_detection(proximity_msg_t *prox_values){
 	uint8_t collision_state = 0;
 
@@ -70,7 +66,7 @@ uint8_t collision_detection(proximity_msg_t *prox_values){
 		int calibrated_value = (int)prox_values->delta[i] - (int)prox_values->initValue[i];
 
 		if(calibrated_value >= threshold_table[i]){
-			collision_state = (collision_state | (1 << i));
+			collision_state = (collision_state | (1 << i));//sets the bit of rank i if the value is higher than the threshold
 		}
 	}
 
@@ -111,7 +107,7 @@ void collision_detection_start(){
 	chThdCreateStatic(collision_detection_thd_wa, sizeof(collision_detection_thd_wa), NORMALPRIO, collision_detection_thd, NULL);
 }
 
-//getters and setters for the module static variables that are needed externally
+//getter for the module static variables that are needed externally
 
 uint8_t get_collision_states()
 {

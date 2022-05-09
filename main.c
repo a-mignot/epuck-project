@@ -57,10 +57,14 @@ int main(void)
     usb_start();
     //inits the motors
     motors_init();
+    //inits the IR sensors
     proximity_start();
+    //inits the thread of collision detection
     collision_detection_start();
     messagebus_init(&bus, &bus_lock, &bus_condvar);
+    //inits the microphone and the callback function
     mic_start(&processAudioData);
+    //inits the thread that triggers the different motor_sequences
     command_start();
 
     //default infinite loop

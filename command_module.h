@@ -8,7 +8,7 @@
 #define COMMAND_MODULE_H
 
 //--------- INCLUDES --------
-
+#include <sound_module.h>
 
 //--------- DEFINES ---------
 
@@ -17,6 +17,7 @@
 //--------- PROTOTYPES ---------
 
 void command_start(void);
+void launchSequenceFromPitch(pitch note);
 
 #endif
 

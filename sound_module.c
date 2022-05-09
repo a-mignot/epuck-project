@@ -1,5 +1,5 @@
 //Filename 		: sound_module.c
-//Description  	: this module takes the input of the microphines and processes
+//Description  	: this module takes the input of the microphones and processes
 //				  it to find which pitch is played
 //Authors 		: Antonin Mignot, David Junqueira
 //Version	 	: 1
@@ -12,12 +12,12 @@
 #include <arm_const_structs.h>
 #include <audio/microphone.h>
 
-#include <chprintf.h>
 
 //#define DEBUG
 
 #ifdef DEBUG
 #include <debug.h>
+#include <chprintf.h>
 #endif
 
 
@@ -59,13 +59,9 @@ void doFFT_optimized(uint16_t size, float* complex_buffer){
 }
 
 void processAudioData(int16_t *data, uint16_t num_samples){
-	/*
-	*
-	*	We get 160 samples per mic every 10ms
+	/*  We get 160 samples per mic every 10ms
 	*	So we fill the samples buffers to reach
-	*	1024 samples, then we compute the FFTs.
-	*
-	*/
+	*	1024 samples, then we compute the FFTs.	*/
 	static uint16_t nb_samples = 0;
 
 	//loop to fill the buffers
