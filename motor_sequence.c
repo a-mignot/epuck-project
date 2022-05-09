@@ -218,24 +218,10 @@ void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t spe
 	}
 }
 
-
-<<<<<<< HEAD
-//if degree is positive turn anticlockwise (trigonometric-wise)
-//if degree is negative turn clockwise (antitrigonometric-wise)
-
-//void move_rotate(int16_t degree){
-//
-//}
-
-//void move_triangle(){
-//
-//}
-=======
 void move_stop(){
 	right_motor_set_speed(MOTOR_STOP_SPEED);
 	left_motor_set_speed(MOTOR_STOP_SPEED);
 }
->>>>>>> moteurs
 
 
 //direction :  1 - robot is going forward

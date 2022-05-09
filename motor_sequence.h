@@ -14,12 +14,7 @@
 
 //--------- PROTOTYPES --------
 
-<<<<<<< HEAD
-void move_straight(int16_t distance);;
-void move_rotate(int16_t degree);
-void move_triangle(void);
-void move_loop_until(int16_t steps_needed, int8_t direction);
-=======
+
 //--------- PROTOTYPES ---------
 
 //These are basic sequences used to form more complex shapes
@@ -40,7 +35,7 @@ void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed);
 void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t speed, float radius);
 
 void move_stop(void);
->>>>>>> moteurs
+
 void obstacle_to_avoid(int8_t direction, uint8_t collision_states);
 
 #endif
