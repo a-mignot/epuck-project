@@ -27,7 +27,6 @@ static THD_FUNCTION(command_thd, arg){
 	(void) arg;
 	chRegSetThreadName(__FUNCTION__);
 
-
 	for(;;){
 		set_pitch_changed(PITCH_UNCHANGED);
 		launchSequenceFromPitch(get_current_pitch());
@@ -42,13 +41,12 @@ void launchSequenceFromPitch(pitch note)
 	switch(note)
 	{
 	case PITCH_C:
-		//do sequence 1
 		break;
 	case PITCH_D:
 		//do sequence 2
 		break;
 	case PITCH_E:
-		//do sequence 3
+		move_eight_shape(10,1000);
 		break;
 	case PITCH_F:
 		//do sequence 4

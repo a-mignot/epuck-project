@@ -69,6 +69,7 @@ int main(void)
 
     //default infinite loop
     while(1){
+    	chThdSleepMilliseconds(100);
     }
 }
 

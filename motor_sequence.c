@@ -148,7 +148,7 @@ void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed){
 	systime_t time;
 	int8_t direction = (speed > 0) ? DIR_FORWARD : DIR_BACKWARD;
 
-	for(uint32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
+	for(int32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
 		//we multiply by direction to always subtract a positive value from i
 		time = chVTGetSystemTime();
 
@@ -190,7 +190,7 @@ void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t spe
 	}
 	int16_t speed_int = speed*((radius-WHEEL_DISTANCE)/WHEEL_RADIUS);
 
-	for(uint32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
+	for(int32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
 		//we multiply by direction to always subtract a positive value from i
 		time = chVTGetSystemTime();
 

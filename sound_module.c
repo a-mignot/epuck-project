@@ -29,7 +29,9 @@
 //we can obtain the FREQ_x position of the corresponding frequency in the buffer
 //by dividing the frequency of the pitch by 15.625 which is the frequency resolution
 
-#define MIN_FREQ	30	//we don't analyze before this index to not use resources for nothing
+//motors frequency appear to be near C frequency which creates a functionality problem
+
+#define MIN_FREQ	35	//we don't analyze before this index to not use resources for nothing
 #define FREQ_C		33	//523.25 Hz (C5)
 #define FREQ_D		38	//587.33 Hz	(D5)
 #define FREQ_E		42	//659.25 Hz (E5)
@@ -87,7 +89,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 		pitch output = pitch_finder(micBack_output);
 
-		if(current_pitch != output) // à noter qu'actuellement le pitch est considéré comme changé si il capte default après une note quelconque
+		if((current_pitch != output) && (output != PITCH_ERR)) // à noter qu'actuellement le pitch est considéré comme changé si il capte default après une note quelconque
 		{
 			current_pitch = output;
 			pitch_changed = PITCH_CHANGED;
@@ -112,7 +114,7 @@ pitch pitch_finder(float* data){
 			max_norm_index = i;
 		}
 	}
-	if(max_norm_index >= (FREQ_C-1) && max_norm_index <= (FREQ_C+1)) return PITCH_C;
+	//if(max_norm_index >= (FREQ_C-1) && max_norm_index <= (FREQ_C+1)) return PITCH_C;
 	if(max_norm_index >= (FREQ_D-1) && max_norm_index <= (FREQ_D+1)) return PITCH_D;
 	if(max_norm_index >= (FREQ_E-1) && max_norm_index <= (FREQ_E+1)) return PITCH_E;
 	if(max_norm_index >= (FREQ_F-1) && max_norm_index <= (FREQ_F+1)) return PITCH_F;
