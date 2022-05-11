@@ -13,7 +13,7 @@
 #include <audio/microphone.h>
 
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 #include <debug.h>
@@ -41,6 +41,7 @@
 #define FREQ_B		63	//987.77 Hz (B5) (980/recalculer)
 #define MAX_FREQ	65	//we don't analyze after this index to not use resources for nothing
 
+#define SAMPLE_SIZE 6
 
 //--------- STATIC VARIABLES ---------
 
@@ -50,9 +51,14 @@ static float micBack_output[FFT_SIZE];
 
 static uint8_t pitch_changed = PITCH_UNCHANGED; //value is 0 if pitch didn't change since last sampling, 1 if it did
 static pitch current_pitch = PITCH_ERR; //default value for "no pitch in range received"
+static pitch last_notes[SAMPLE_SIZE];
 
 
 //--------- FUNCTIONS ---------
+
+uint8_t check_all_same(void);
+void add_note(pitch pitch_to_add);
+
 
 
 void doFFT_optimized(uint16_t size, float* complex_buffer){
@@ -88,8 +94,9 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		//read current pitch and update pitch_changed and current_pitch depending on receiver information
 
 		pitch output = pitch_finder(micBack_output);
+		add_note(output);
 
-		if((current_pitch != output) && (output != PITCH_ERR)) // à noter qu'actuellement le pitch est considéré comme changé si il capte default après une note quelconque
+		if((output != current_pitch) && (check_all_same()) && (output != PITCH_ERR)) // à noter qu'actuellement le pitch est considéré comme changé si il capte default après une note quelconque
 		{
 			current_pitch = output;
 			pitch_changed = PITCH_CHANGED;
@@ -124,6 +131,35 @@ pitch pitch_finder(float* data){
 	else return PITCH_ERR;
 
 }
+
+void add_note(pitch pitch_to_add)
+{
+	static uint8_t position = 0;
+	last_notes[position] = pitch_to_add;
+	if(position == (SAMPLE_SIZE-1))
+	{
+		position = 0;
+	}
+	else{position += 1;}
+}
+
+uint8_t check_all_same()
+{
+	pitch tested_pitch = last_notes[0];
+	for(uint8_t i = 1; i < SAMPLE_SIZE ; i++)
+	{
+		if(last_notes[i] != tested_pitch)
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+
+
+
+
+
 
 
 //getters and setters for the module static variables that are needed externally

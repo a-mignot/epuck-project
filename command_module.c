@@ -40,22 +40,22 @@ void launchSequenceFromPitch(pitch note)
 {
 	switch(note)
 	{
-	case PITCH_C:
-		break;
+//	case PITCH_C:
+//		break;
 	case PITCH_D:
-		//do sequence 2
+		move_triangle(15,1000);
 		break;
 	case PITCH_E:
-		move_eight_shape(10,1000);
+		move_straight_back_forth(15,1000);
 		break;
 	case PITCH_F:
-		//do sequence 4
+		move_rotate_back_forth(20,1000);
 		break;
 	case PITCH_G:
-		//do sequence 5
+		move_circle(7.3,1,1000);
 		break;
 	case PITCH_A:
-		//do sequence 6
+		move_eight_shape(10,1000);
 		break;
 	case PITCH_B:
 		//do sequence 7
