@@ -62,7 +62,7 @@ void add_note(pitch pitch_to_add);
 
 
 void doFFT_optimized(uint16_t size, float* complex_buffer){
-	if(size == 1024)
+	if(size == FFT_SIZE)
 		arm_cfft_f32(&arm_cfft_sR_f32_len1024, complex_buffer, 0, 1);
 }
 
