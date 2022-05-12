@@ -37,9 +37,9 @@
 #define FREQ_E		42	//659.25 Hz (E5)
 #define FREQ_F		45	//698.46 Hz (F5)
 #define FREQ_G		50	//783.99 Hz (G5)
-#define FREQ_A		56	//880.00 Hz (A5) (870/recalculer)
-#define FREQ_B		63	//987.77 Hz (B5) (980/recalculer)
-#define MAX_FREQ	65	//we don't analyze after this index to not use resources for nothing
+#define FREQ_A		57	//880.00 Hz (A5) (870/recalculer)
+#define FREQ_B		65	//987.77 Hz (B5) (980/recalculer)
+#define MAX_FREQ	67	//we don't analyze after this index to not use resources for nothing
 
 #define SAMPLE_SIZE 6
 

@@ -49,7 +49,7 @@ void launchSequenceFromPitch(pitch note)
 		move_straight_back_forth(15,1000);
 		break;
 	case PITCH_F:
-		move_rotate_back_forth(20,1000);
+		move_rotate_back_forth(20,550);
 		break;
 	case PITCH_G:
 		move_circle(7.3,1,1000);
