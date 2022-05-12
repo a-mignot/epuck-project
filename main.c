@@ -50,7 +50,7 @@ int main(void)
     halInit();
     chSysInit();
     mpu_init();
-
+    leds_animation_start();
     //starts the serial communication
     serial_start();
     //starts the USB communication

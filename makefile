@@ -15,6 +15,7 @@ CSRC += ./main.c \
 		./motor_sequence.c\
 		./sound_module.c\
 		./command_module.c\
+		./leds_animation.c\
 
 #Header folders to include
 INCDIR += 
