@@ -182,13 +182,13 @@ void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t spe
 	systime_t time;
 	int8_t direction = (speed > 0) ? DIR_FORWARD : DIR_BACKWARD;
 
-	int16_t speed_ext = speed*((radius+WHEEL_DISTANCE)/WHEEL_RADIUS);
+	int16_t speed_ext = speed*((radius+WHEEL_DISTANCE)/radius);
 	//speed verification
 	if(speed_ext > MAX_SPEED){
 		speed_ext = MAX_SPEED;
-		speed = speed_ext*(WHEEL_RADIUS)/(radius+WHEEL_DISTANCE);
+		speed = speed_ext*(radius)/(radius+WHEEL_DISTANCE);
 	}
-	int16_t speed_int = speed*((radius-WHEEL_DISTANCE)/WHEEL_RADIUS);
+	int16_t speed_int = speed*((radius-WHEEL_DISTANCE)/radius);
 
 	for(int32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
 		//we multiply by direction to always subtract a positive value from i
