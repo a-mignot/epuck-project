@@ -283,4 +283,11 @@ uint8_t mask_modification(uint8_t collision_input)
 	return converted_output;
 }
 
+void motor_sequence_start()
+{
+	collision_detection_start();
+}
+
+
+
 //--------- END OF FILE ---------

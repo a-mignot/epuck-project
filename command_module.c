@@ -72,7 +72,8 @@ void launchSequenceFromPitch(pitch note)
 //initializes the command Thread with a normal priority (potentiellement à changer du coup)
 
 void command_start(){
-	 static THD_WORKING_AREA(command_thd_wa, 1024); // taille à fix en fonction de ce que j'ajoute comme variables
-	 chThdCreateStatic(command_thd_wa, sizeof(command_thd_wa), NORMALPRIO, command_thd, NULL);
+	motor_sequence_start();
+	static THD_WORKING_AREA(command_thd_wa, 1024); // taille à fix en fonction de ce que j'ajoute comme variables
+	chThdCreateStatic(command_thd_wa, sizeof(command_thd_wa), NORMALPRIO, command_thd, NULL);
 }
 

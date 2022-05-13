@@ -22,8 +22,6 @@
 
 // PROJECT MODULES
 #include <main.h>
-#include <ir_detection_module.h>
-#include <sound_module.h>
 #include <command_module.h>
 
 messagebus_t bus;
@@ -59,8 +57,7 @@ int main(void)
     motors_init();
     //inits the IR sensors
     proximity_start();
-    //inits the thread of collision detection
-    collision_detection_start();
+
     messagebus_init(&bus, &bus_lock, &bus_condvar);
     //inits the microphone and the callback function
     mic_start(&processAudioData);
