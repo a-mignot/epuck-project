@@ -110,6 +110,9 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	}
 }
 
+//Checks what frequency was sampled by extracting the FFt index with the
+//highest absolute value and returns the corresponding pitch
+
 pitch pitch_finder(float* data){
 	float max_norm = MIN_VALUE_THRESHOLD;
 	int16_t max_norm_index = -1;
@@ -145,8 +148,10 @@ void add_note(pitch pitch_to_add)
 	else{position += 1;}
 }
 
+
 //checks if the same note has been sampled a certain number of times, this allows to get rid of some
 //unexpected reactions due to noise
+
 
 uint8_t check_all_same()
 {
@@ -162,11 +167,6 @@ uint8_t check_all_same()
 }
 
 
-
-
-
-
-
 //getters and setters for the module static variables that are needed externally
 
 
@@ -180,12 +180,9 @@ void set_pitch_changed(uint8_t new_state)
 	pitch_changed = new_state;
 }
 
-
 int get_current_pitch()
 {
 	return current_pitch;
 }
-
-
 
 //--------- END OF FILE ---------

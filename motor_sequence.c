@@ -237,12 +237,12 @@ void obstacle_to_avoid(int8_t direction, uint8_t collision_states){
 	if(direction == DIR_FORWARD  && (collision_states & FRONT_IR_MASK)){
 		set_leds_from_byte(mask_modification(collision_states & FRONT_IR_MASK));
 		if(collision_states & FRONT_RIGHT_IR_MASK) move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
-		if(collision_states & FRONT_LEFT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
+		else if(collision_states & FRONT_LEFT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
 	}
 	if(direction == DIR_BACKWARD && (collision_states & BACK_IR_MASK)){
 		set_leds_from_byte(mask_modification(collision_states & BACK_IR_MASK));
-		if(collision_states & BACK_RIGHT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
-		if(collision_states & BACK_LEFT_IR_MASK)   move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
+		if(collision_states & BACK_RIGHT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE, -MAX_SPEED);
+		else if(collision_states & BACK_LEFT_IR_MASK)   move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
 	}
 	clear_top_leds();
 }
