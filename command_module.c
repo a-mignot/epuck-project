@@ -30,6 +30,8 @@ static THD_FUNCTION(command_thd, arg){
 	for(;;){
 		set_pitch_changed(PITCH_UNCHANGED);
 		launchSequenceFromPitch(get_current_pitch());
+	//	static int first_time = 0;
+//		if(first_time == 0){move_arc(180,7.3,1,400);first_time=1;}
 	}
 
 }
@@ -38,12 +40,13 @@ static THD_FUNCTION(command_thd, arg){
 
 void launchSequenceFromPitch(pitch note)
 {
+	static int first_time = 0;
 	switch(note)
 	{
 //	case PITCH_C:
 //		break;
 	case PITCH_D:
-		move_triangle(15,1000);
+		//move_triangle(15,1000);
 		break;
 	case PITCH_E:
 		move_straight_back_forth(15,1000);
@@ -58,7 +61,7 @@ void launchSequenceFromPitch(pitch note)
 		move_eight_shape(10,1000);
 		break;
 	case PITCH_B:
-		//do sequence 7
+		if(first_time == 0){move_arc(280,7.3,1,400);first_time=1;}
 		break;
 	default:
 		//do default

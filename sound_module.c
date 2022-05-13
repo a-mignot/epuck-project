@@ -41,7 +41,7 @@
 #define FREQ_B		65	//987.77 Hz (B5) (980/recalculer)
 #define MAX_FREQ	67	//we don't analyze after this index to not use resources for nothing
 
-#define SAMPLE_SIZE 6
+#define SAMPLE_SIZE 10
 
 //--------- STATIC VARIABLES ---------
 
