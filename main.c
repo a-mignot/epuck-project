@@ -18,6 +18,7 @@
 #include "sensors/proximity.h"
 #include "audio/microphone.h"
 #include <motors.h>
+#include<spi_comm.h>
 
 // PROJECT MODULES
 #include <main.h>
@@ -50,7 +51,6 @@ int main(void)
     halInit();
     chSysInit();
     mpu_init();
-    leds_animation_start();
     //starts the serial communication
     serial_start();
     //starts the USB communication
@@ -64,6 +64,7 @@ int main(void)
     messagebus_init(&bus, &bus_lock, &bus_condvar);
     //inits the microphone and the callback function
     mic_start(&processAudioData);
+    spi_comm_start();
     //inits the thread that triggers the different motor_sequences
     command_start();
 

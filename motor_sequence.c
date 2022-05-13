@@ -21,6 +21,7 @@
 #include <motor_sequence.h>
 #include <sound_module.h>
 #include <ir_detection_module.h>
+#include <leds_animation.h>
 
 //--------- DEFINES ---------
 
@@ -62,6 +63,9 @@
 #define DEG_TO_RAD(DEG) 			(DEG*PI/180.0f)
 
 //--------- FUNCTIONS ---------
+
+uint8_t mask_modification(uint8_t collision_input);
+
 
 void move_straight(uint32_t cm_needed, int16_t speed){
 	if((speed <= -MIN_SPEED ||speed >= MIN_SPEED) && cm_needed != 0){
@@ -108,6 +112,7 @@ void move_rotate_back_forth(uint32_t degree, int16_t speed){
 		if(get_pitch_changed()) return;
 		move_rotate(degree,-speed);
 		if(get_pitch_changed()) return;
+		round_led_spin(100,0,0);
 	}
 }
 
@@ -120,13 +125,13 @@ void move_circle(float radius, int8_t rotation, int16_t speed){
 
 void move_eight_shape(uint32_t straight_size, int16_t speed){
 	while(1){
-		move_straight(straight_size,speed);
+//		move_straight(straight_size,speed);
+//		if(get_pitch_changed()) return;
+		move_arc(360,straight_size,CCW_ROTATION,speed);
 		if(get_pitch_changed()) return;
-		move_arc(ARC_DEGREE_LENGTH,straight_size*EIGHT_SIZE_TO_RADIUS,CCW_ROTATION,speed);
-		if(get_pitch_changed()) return;
-		move_straight(straight_size,speed);
-		if(get_pitch_changed()) return;
-		move_arc(ARC_DEGREE_LENGTH,straight_size*EIGHT_SIZE_TO_RADIUS,CW_ROTATION,speed);
+//		move_straight(straight_size,speed);
+//		if(get_pitch_changed()) return;
+		move_arc(360,straight_size,CW_ROTATION,speed);
 		if(get_pitch_changed()) return;
 	}
 }
@@ -227,17 +232,55 @@ void move_stop(){
 //direction :  1 - robot is going forward
 //direction : -1 - robot is going backward
 void obstacle_to_avoid(int8_t direction, uint8_t collision_states){
+
 //the response of the system must be fast so we chose to put max_speed for the rotation
 	if(direction == DIR_FORWARD  && (collision_states & FRONT_IR_MASK)){
+		set_leds_from_byte(mask_modification(collision_states & FRONT_IR_MASK));
 		if(collision_states & FRONT_RIGHT_IR_MASK) move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
 		if(collision_states & FRONT_LEFT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
-
 	}
 	if(direction == DIR_BACKWARD && (collision_states & BACK_IR_MASK)){
+		set_leds_from_byte(mask_modification(collision_states & BACK_IR_MASK));
 		if(collision_states & BACK_RIGHT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
 		if(collision_states & BACK_LEFT_IR_MASK)   move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
 	}
+	clear_top_leds();
+}
 
+//Modifies the collision states in order for them to correspond to the leds near to each IR sensor
+
+uint8_t mask_modification(uint8_t collision_input)
+{
+	uint8_t converted_output = 0;
+	if((collision_input & (0b10000001)) != 0) // Ir 1 and 8 mapped on led 1
+	{
+		converted_output |= 0b00000001;
+	}
+	if ((collision_input & (0b00000010)) != 0) // Ir 2 mapped on led 2
+	{
+		converted_output |= 0b00000010;
+	}
+	if ((collision_input & (0b00000100)) != 0) // Ir 3 mapped on led 3
+	{
+		converted_output |= 0b00000100;
+	}
+	if ((collision_input & (0b00001000)) != 0) // Ir 4 mapped on led 4
+	{
+		converted_output |= 0b00001000;
+	}
+	if ((collision_input & (0b000010000)) != 0) // Ir 5 mapped on led 6
+	{
+		converted_output |= 0b00100000;
+	}
+	if ((collision_input & (0b00100000)) != 0) // Ir 6 mapped on led 7
+	{
+		converted_output |= 0b01000000;
+	}
+	if ((collision_input & (0b01000000)) != 0) // Ir 7 mapped on led 8
+	{
+		converted_output |= 0b10000000;
+	}
+	return converted_output;
 }
 
 //--------- END OF FILE ---------

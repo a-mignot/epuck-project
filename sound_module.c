@@ -132,6 +132,8 @@ pitch pitch_finder(float* data){
 
 }
 
+//adds a note to an array of the last sampled notes.
+
 void add_note(pitch pitch_to_add)
 {
 	static uint8_t position = 0;
@@ -142,6 +144,9 @@ void add_note(pitch pitch_to_add)
 	}
 	else{position += 1;}
 }
+
+//checks if the same note has been sampled a certain number of times, this allows to get rid of some
+//unexpected reactions due to noise
 
 uint8_t check_all_same()
 {
