@@ -32,14 +32,16 @@
 //motors frequency appear to be near C frequency which creates a functionality problem
 
 #define MIN_FREQ	35	//we don't analyze before this index to not use resources for nothing
-#define FREQ_C		33	//523.25 Hz (C5)
 #define FREQ_D		38	//587.33 Hz	(D5)
 #define FREQ_E		42	//659.25 Hz (E5)
 #define FREQ_F		45	//698.46 Hz (F5)
 #define FREQ_G		50	//783.99 Hz (G5)
-#define FREQ_A		57	//880.00 Hz (A5) (870/recalculer)
-#define FREQ_B		65	//987.77 Hz (B5) (980/recalculer)
+#define FREQ_A		57	//880.00 Hz (A5)
+#define FREQ_B		65	//987.77 Hz (B5)
 #define MAX_FREQ	67	//we don't analyze after this index to not use resources for nothing
+
+
+//10 samples gives a good safety regarding noise but slows the reaction time
 
 #define SAMPLE_SIZE 10
 
@@ -51,29 +53,28 @@ static float micBack_output[FFT_SIZE];
 
 static uint8_t pitch_changed = PITCH_UNCHANGED; //value is 0 if pitch didn't change since last sampling, 1 if it did
 static pitch current_pitch = PITCH_ERR; //default value for "no pitch in range received"
-static pitch last_notes[SAMPLE_SIZE];
+static pitch last_notes[SAMPLE_SIZE]; //array containing last received notes
 
+//----INTERNAL FUNCTIONS DECLARATION----
 
-//--------- FUNCTIONS ---------
-
+void processAudioData(int16_t *data, uint16_t num_samples);
+pitch pitch_finder(float* data);
 uint8_t check_all_same(void);
 void add_note(pitch pitch_to_add);
 
 
+//--------- FUNCTIONS ---------
 
-void doFFT_optimized(uint16_t size, float* complex_buffer){
-	if(size == FFT_SIZE)
-		arm_cfft_f32(&arm_cfft_sR_f32_len1024, complex_buffer, 0, 1);
-}
-
-void processAudioData(int16_t *data, uint16_t num_samples){
+void processAudioData(int16_t *data, uint16_t num_samples)
+{
 	/*  We get 160 samples per mic every 10ms
 	*	So we fill the samples buffers to reach
 	*	1024 samples, then we compute the FFTs.	*/
 	static uint16_t nb_samples = 0;
 
 	//loop to fill the buffers
-	for(uint16_t i = 0 ; i < num_samples ; i+=4){
+	for(uint16_t i = 0 ; i < num_samples ; i+=4)
+	{
 		//construct an array of complex numbers. Put 0 to the imaginary part
 		micBack_cmplx_input[nb_samples] = (float)data[i + MIC_BACK];
 		nb_samples++;
@@ -81,12 +82,14 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		nb_samples++;
 
 		//stop when buffer is full
-		if(nb_samples >= (2 * FFT_SIZE)){
+		if(nb_samples >= (2 * FFT_SIZE))
+		{
 			break;
 		}
 	}
-	if(nb_samples >= (2 * FFT_SIZE)){
-		doFFT_optimized(FFT_SIZE, micBack_cmplx_input);
+	if(nb_samples >= (2 * FFT_SIZE))
+	{
+		arm_cfft_f32(&arm_cfft_sR_f32_len1024, micBack_cmplx_input, 0, 1);
 		arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
 
 		nb_samples = 0;
@@ -96,7 +99,8 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		pitch output = pitch_finder(micBack_output);
 		add_note(output);
 
-		if((output != current_pitch) && (check_all_same()) && (output != PITCH_ERR)) // à noter qu'actuellement le pitch est considéré comme changé si il capte default après une note quelconque
+		// checks if pitch has changed and if the note has been played enough time for a sequence change
+		if((output != current_pitch) && (check_all_same()) && (output != PITCH_ERR))
 		{
 			current_pitch = output;
 			pitch_changed = PITCH_CHANGED;
@@ -104,7 +108,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 #ifdef DEBUG
 		char note = freqToPitchName(output);
-		chprintf((BaseSequentialStream *)&SD3,"%note:%-c \r \n",note);
+		chprintf((BaseSequentialStream *)&SD3,"%note:%-c \r\n",note);
 #endif
 
 	}
@@ -113,18 +117,20 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 //Checks what frequency was sampled by extracting the FFt index with the
 //highest absolute value and returns the corresponding pitch
 
-pitch pitch_finder(float* data){
+pitch pitch_finder(float* data)
+{
 	float max_norm = MIN_VALUE_THRESHOLD;
 	int16_t max_norm_index = -1;
 
 	//search for the highest peak
-	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
-		if(data[i] > max_norm){
+	for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++)
+	{
+		if(data[i] > max_norm)
+		{
 			max_norm = data[i];
 			max_norm_index = i;
 		}
 	}
-	//if(max_norm_index >= (FREQ_C-1) && max_norm_index <= (FREQ_C+1)) return PITCH_C;
 	if(max_norm_index >= (FREQ_D-1) && max_norm_index <= (FREQ_D+1)) return PITCH_D;
 	if(max_norm_index >= (FREQ_E-1) && max_norm_index <= (FREQ_E+1)) return PITCH_E;
 	if(max_norm_index >= (FREQ_F-1) && max_norm_index <= (FREQ_F+1)) return PITCH_F;
@@ -145,7 +151,10 @@ void add_note(pitch pitch_to_add)
 	{
 		position = 0;
 	}
-	else{position += 1;}
+	else
+	{
+		position += 1;
+	}
 }
 
 

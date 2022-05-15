@@ -23,10 +23,8 @@
 
 //--------- PROTOTYPES -------
 
-uint8_t collision_detection(proximity_msg_t *prox_values);
 uint8_t get_collision_states(void);
 void collision_detection_start(void);
-
 
 #endif
 //--------- END OF FILE ---------

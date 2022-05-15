@@ -25,8 +25,6 @@ char freqToPitchName(pitch note)
 {
 	switch(note)
 	{
-	case PITCH_C:
-		return 'C';
 	case PITCH_D:
 		return 'D';
 	case PITCH_E:

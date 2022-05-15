@@ -9,7 +9,8 @@
 #include<spi_comm.h>
 #include<math.h>
 //--------- DEFINES ---------
-#define NUMBER_OF_LEDS 4
+#define NUMBER_OF_LEDS 8
+#define NUMBER_OF_NORMAL_LEDS 4
 #define NUMBER_OF_RGB_LEDS 4
 #define RGB 3
 
@@ -27,13 +28,16 @@
 
 //--------- FUNCTIONS ---------
 
-static uint8_t leds_states[NUMBER_OF_LEDS];
-static uint8_t rgb_leds_states[NUMBER_OF_RGB_LEDS][RGB];
-
 void tiles_symbol(void);
+
 void set_save_led(uint8_t led_number, uint8_t state);
+
 void set_save_rgb_led(uint8_t led_number, uint8_t red, uint8_t green, uint8_t blue);
 
+//--------- STATIC VARIABLES ---------
+
+static uint8_t leds_states[NUMBER_OF_NORMAL_LEDS];
+static uint8_t rgb_leds_states[NUMBER_OF_RGB_LEDS][RGB];
 
 //Circle animation with leds
 
@@ -68,18 +72,22 @@ void round_led_spin(uint16_t red, uint16_t green, uint16_t blue)
 		set_save_rgb_led(LED8,on_off*red,on_off*green,on_off*blue);
 		break;
 	}
-	if(cycle==7){
-	on_off = (on_off == ON) ? OFF : ON;
-	cycle = 0;
+	if(cycle==7)
+	{
+		on_off = (on_off == ON) ? OFF : ON;
+		cycle = 0;
 	}
-	else{cycle++;}
+	else
+	{
+		cycle++;
+	}
 }
 
 //Takes a 8 bit number in entry and lights the led corresponding to each bit.
 
 void set_leds_from_byte(uint8_t desiredStates)
 {
-	for (int8_t i=7;i>=0;i--)
+	for (int8_t i=NUMBER_OF_LEDS-1;i>=0;i--)
 	{
 		if(i%2==0)
 		{
@@ -178,24 +186,22 @@ void diamond_shapes(uint8_t leds_type)
 
 void clear_top_leds()
 {
-	for (int i = 0; i<NUMBER_OF_LEDS; i++)
+	for (int i = 0; i<NUMBER_OF_NORMAL_LEDS; i++)
 	{
 		set_save_led(i,OFF);
 		set_save_rgb_led(i, RGB_LED_OFF);
 	}
 }
 
-void leds_animation_start()
-{
-	spi_comm_start();
-	clear_leds();
-}
+//turns on a specific normal led and saves its state in a static array
 
 void set_save_led(uint8_t led_number, uint8_t state)
 {
 	set_led(led_number,state);
 	leds_states[led_number] = state;
 }
+
+//turns on a specific rgb led and saves its state in a static array
 
 void set_save_rgb_led(uint8_t led_number, uint8_t red, uint8_t green, uint8_t blue)
 {
@@ -205,6 +211,7 @@ void set_save_rgb_led(uint8_t led_number, uint8_t red, uint8_t green, uint8_t bl
 	rgb_leds_states[led_number][BLUE] = blue;
 }
 
+//assigns to all leds the states that are saved in the arrays
 
 void restore_all_leds_states()
 {

@@ -19,7 +19,6 @@
 //--------- TYPEDEFS/STRUCT/ENUM ---------
 
 typedef enum pitch{
-				   PITCH_C,
 				   PITCH_D,
 				   PITCH_E,
 				   PITCH_F,
@@ -31,13 +30,11 @@ typedef enum pitch{
 
 //--------- PROTOTYPES ---------
 
-void doFFT_optimized(uint16_t size, float* complex_buffer);
-void processAudioData(int16_t *data, uint16_t num_samples);
-pitch pitch_finder(float* data);
-
 void set_pitch_changed(uint8_t new_state);
 int get_pitch_changed(void);
 int get_current_pitch(void);
+
+//inits microphones
 void sound_module_start(void);
 
 

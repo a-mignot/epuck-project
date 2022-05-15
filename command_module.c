@@ -7,7 +7,6 @@
 
 //--------- INCLUDES --------
 #include <ch.h>
-//#include "hal.h"
 
 #include <command_module.h>
 #include <sound_module.h>
@@ -35,12 +34,13 @@ void launchSequenceFromPitch(pitch note);
 //Thread that selects the sequence to launch according to the received note from sound_module
 //everytime the received pitch changes, this module sets it back to zero and launches next sequence
 
-static THD_FUNCTION(command_thd, arg){
-
+static THD_FUNCTION(command_thd, arg)
+{
 	(void) arg;
 	chRegSetThreadName(__FUNCTION__);
 
-	for(;;){
+	for(;;)
+	{
 		set_pitch_changed(PITCH_UNCHANGED);
 		launchSequenceFromPitch(get_current_pitch());
 	}
@@ -77,7 +77,8 @@ void launchSequenceFromPitch(pitch note)
 }
 
 
-void command_start(){
+void command_start()
+{
 
 	ir_and_sound_init();
 

@@ -24,15 +24,24 @@
 
 //--------- PROTOTYPES ---------
 
-void round_led_spin(uint16_t RED, uint16_t GREEN, uint16_t BLUE);
-void clear_top_leds(void);
-void leds_animation_start(void);
+//sets on leds corresponding to a byte number in which 1 means on and 0 off
+//i.e 0b00110001 will turn on leds 1, 5 and 6
 void set_leds_from_byte(uint8_t desiredStates);
+
+//basic led animations
+void round_led_spin(uint16_t RED, uint16_t GREEN, uint16_t BLUE);
 void front_back_flash(uint8_t direction, uint8_t sequence_stage);
 void leds_triangle(void);
 void diamond_shapes(uint8_t led_configuration);
 void side_leds_on(void);
+
+
+//sets off all e-puck leds that are on top
+void clear_top_leds(void);
+
+//allows to restore all temporarily changed leds states
 void restore_all_leds_states(void);
+
 #endif
 
 //--------- END OF FILE ---------

@@ -105,6 +105,8 @@ void move_triangle(uint32_t vertice_size, int16_t speed)
 	while(1)
 	{
 		move_straight(vertice_size,speed);
+
+		//if the pitch changed, we need to get out of the sequence to start another
 		if(get_pitch_changed()) return;
 		move_rotate(120,speed);
 		if(get_pitch_changed()) return;
@@ -193,6 +195,7 @@ void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed){
 
 	for(int32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
 		//we multiply by direction to always subtract a positive value from i
+
 		time = chVTGetSystemTime();
 
 		if(rotation == NO_ROTATION){
@@ -204,46 +207,47 @@ void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed){
 
 		//if the robots rotates on itself obstacle_to_avoid is useless
 		//and we avoid an infinite recursion of this move_control_loop
-		else if(rotation == CCW_ROTATION || rotation == CW_ROTATION){
+		else if(rotation == CCW_ROTATION || rotation == CW_ROTATION)
+		{
 			right_motor_set_speed(speed);
 			left_motor_set_speed(-speed);
 		}
 		else return; //rotation parameter is badly given to function
 
-		if(get_pitch_changed()){//la fonction get_pitch_changed acquéris un static pitch_changed du module sound qui indique si le pitch a changé
-			return;
-			//dans le thread il faut que il'y ait un truc qui dès que tu return, il check
-			//le static actual_pitch puis il déclenche la prochaine fonction de séquence
-		}
+		if(get_pitch_changed()) return;
 		chThdSleepUntilWindowed(time, time + MS2ST(DELTA_T));
 	}
 }
 
 //This function is very similar to move_control_loop except that it can handle circular trajectories
-void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t speed, float radius){
-
+void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t speed, float radius)
+{
 	systime_t time;
 	int8_t direction = (speed > 0) ? DIR_FORWARD : DIR_BACKWARD;
-
 	int16_t speed_ext = speed*((radius+WHEEL_DISTANCE)/radius);
+
 	//speed verification
-	if(speed_ext > MAX_SPEED){
+	if(speed_ext > MAX_SPEED)
+	{
 		speed_ext = MAX_SPEED;
 		speed = speed_ext*(radius)/(radius+WHEEL_DISTANCE);
 	}
 	int16_t speed_int = speed*((radius-WHEEL_DISTANCE)/radius);
 
-	for(int32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000){
+	for(int32_t i = steps_needed ; i>0 ; i -= (direction*speed*DELTA_T)/1000)
+	{
 		//we multiply by direction to always subtract a positive value from i
 		time = chVTGetSystemTime();
 
-		if(rotation == CCW_ROTATION){
+		if(rotation == CCW_ROTATION)
+		{
 			uint8_t collision_states = get_collision_states();
 			obstacle_to_avoid(direction,collision_states);
 			right_motor_set_speed(speed_ext);
 			left_motor_set_speed(speed_int);
 		}
-		else if(rotation == CW_ROTATION){
+		else if(rotation == CW_ROTATION)
+		{
 			uint8_t collision_states = get_collision_states();
 			obstacle_to_avoid(direction,collision_states);
 			right_motor_set_speed(speed_int);
@@ -252,16 +256,14 @@ void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t spe
 
 		else return; //rotation parameter is badly given to function
 
-		if(get_pitch_changed()){//la fonction get_pitch_changed acquéris un static pitch_changed du module sound qui indique si le pitch a changé
-			return;
-			//dans le thread il faut que il'y ait un truc qui dès que tu return, il check
-			//le static actual_pitch puis il déclenche la prochaine fonction de séquence
-		}
+		if(get_pitch_changed()) return;
+
 		chThdSleepUntilWindowed(time, time + MS2ST(DELTA_T));
 	}
 }
 
-void move_stop(){
+void move_stop()
+{
 	right_motor_set_speed(MOTOR_STOP_SPEED);
 	left_motor_set_speed(MOTOR_STOP_SPEED);
 }
@@ -272,16 +274,17 @@ void move_stop(){
 void obstacle_to_avoid(int8_t direction, uint8_t collision_states){
 
 //the response of the system must be fast so we chose to put max_speed for the rotation
-	if(direction == DIR_FORWARD  && (collision_states & FRONT_IR_MASK)){
+	if(direction == DIR_FORWARD  && (collision_states & FRONT_IR_MASK))
+	{
 		set_leds_from_byte(mask_modification(collision_states & FRONT_IR_MASK));
 		if(collision_states & FRONT_RIGHT_IR_MASK)
-			{
-				move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
-			}
+		{
+			move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
+		}
 		else if(collision_states & FRONT_LEFT_IR_MASK)
-			{
-				move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
-			}
+		{
+			move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
+		}
 		restore_all_leds_states();
 	}
 	if(direction == DIR_BACKWARD && (collision_states & BACK_IR_MASK)){
