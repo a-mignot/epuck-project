@@ -16,7 +16,6 @@
 //--------- INCLUDES --------
 
 #include <motors.h>
-//#include <ch.h>
 
 #include <motor_sequence.h>
 #include <sound_module.h>
@@ -41,6 +40,8 @@
 #define PI 				3.14159265f
 
 #define COLLISION_AVOIDANCE_ANGLE 90 //in °
+
+#define ONE_TURN_DEGREES 360
 
 //-------- MACROS ----------
 
@@ -74,7 +75,7 @@ uint8_t mask_modification(uint8_t collision_input);
 
 void move_straight(uint32_t cm_needed, int16_t speed)
 {
-	if((speed <= -MIN_SPEED ||speed >= MIN_SPEED) && cm_needed != 0)
+	if((speed <= -MIN_SPEED || speed >= MIN_SPEED) && cm_needed != 0)
 	{
 		move_control_loop(CM_TO_STEPS(cm_needed),NO_ROTATION,speed);
 	}
@@ -119,6 +120,7 @@ void move_straight_back_forth(uint32_t size, int16_t speed)
 	{
 		move_straight(size,speed);
 		if(get_pitch_changed()) return;
+
 		for(uint8_t i= 1; i < FLASH_NUMBER_OF_STAGES+1 ; i++)
 		{
 			front_back_flash(FORWARD, i);
@@ -126,8 +128,10 @@ void move_straight_back_forth(uint32_t size, int16_t speed)
 			chThdSleepMilliseconds(100);
 		}
 		if(get_pitch_changed()) return;
+
 		move_straight(size,-speed);
 		if(get_pitch_changed()) return;
+
 		for(uint8_t i= 1; i < FLASH_NUMBER_OF_STAGES+1 ; i++)
 		{
 			front_back_flash(BACKWARD, i);
@@ -155,7 +159,7 @@ void move_circle(float radius, int8_t rotation, int16_t speed)
 	side_leds_on();
 	while(1)
 	{
-		move_arc(360,radius,rotation,speed);
+		move_arc(ONE_TURN_DEGREES,radius,rotation,speed);
 		if(get_pitch_changed()) return;
 	}
 }
@@ -165,10 +169,11 @@ void move_eight_shape(uint32_t straight_size, int16_t speed)
 	while(1)
 	{
 		diamond_shapes(LED_TYPE_NORMAL);
-		move_arc(360,straight_size,CCW_ROTATION,speed);
+		move_arc(ONE_TURN_DEGREES,straight_size,CCW_ROTATION,speed);
 		if(get_pitch_changed()) return;
+
 		diamond_shapes(LED_TYPE_RGB);
-		move_arc(360,straight_size,CW_ROTATION,speed);
+		move_arc(ONE_TURN_DEGREES,straight_size,CW_ROTATION,speed);
 		if(get_pitch_changed()) return;
 		clear_top_leds();
 	}
@@ -177,7 +182,7 @@ void move_eight_shape(uint32_t straight_size, int16_t speed)
 
 void move_arc(uint32_t degree, float radius, int8_t rotation, int16_t speed)
 {
-	if((speed <= -MIN_SPEED ||speed >= MIN_SPEED) && degree != 0)
+	if((speed <= -MIN_SPEED || speed >= MIN_SPEED) && degree != 0)
 	{
 		move_control_loop_curve(DEG_TO_STEPS(degree,radius),rotation,speed,radius);
 	}
@@ -206,7 +211,7 @@ void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed){
 		}
 
 		//if the robots rotates on itself obstacle_to_avoid is useless
-		//and we avoid an infinite recursion of this move_control_loop
+		//and we avoid an infinite recursion of the move_control_loop function
 		else if(rotation == CCW_ROTATION || rotation == CW_ROTATION)
 		{
 			right_motor_set_speed(speed);
@@ -274,7 +279,7 @@ void move_stop()
 void obstacle_to_avoid(int8_t direction, uint8_t collision_states){
 
 //the response of the system must be fast so we chose to put max_speed for the rotation
-	if(direction == DIR_FORWARD  && (collision_states & FRONT_IR_MASK))
+	if(direction == DIR_FORWARD && (collision_states & FRONT_IR_MASK))
 	{
 		set_leds_from_byte(mask_modification(collision_states & FRONT_IR_MASK));
 		if(collision_states & FRONT_RIGHT_IR_MASK)
@@ -287,10 +292,17 @@ void obstacle_to_avoid(int8_t direction, uint8_t collision_states){
 		}
 		restore_all_leds_states();
 	}
-	if(direction == DIR_BACKWARD && (collision_states & BACK_IR_MASK)){
+	if(direction == DIR_BACKWARD && (collision_states & BACK_IR_MASK))
+	{
 		set_leds_from_byte(mask_modification(collision_states & BACK_IR_MASK));
-		if(collision_states & BACK_RIGHT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE, -MAX_SPEED);
-		else if(collision_states & BACK_LEFT_IR_MASK)   move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
+		if(collision_states & BACK_RIGHT_IR_MASK)
+		{
+			move_rotate(COLLISION_AVOIDANCE_ANGLE, -MAX_SPEED);
+		}
+		else if(collision_states & BACK_LEFT_IR_MASK)
+		{
+			move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
+		}
 		restore_all_leds_states();
 	}
 }

@@ -3,18 +3,18 @@
 //Authors 		: Antonin Mignot, David Junqueira
 //Version	 	: 1
 
+
+//---------- DEFINES -----------
+//#define DEBUG
+
 //--------- INCLUDES --------
 
-// C-BASED LIBRARIES
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 // E-PUCK LIBRARIES
-#include "ch.h"
 #include "hal.h"
-#include "memory_protection.h"
+#ifdef DEBUG
 #include <usbcfg.h>
+#endif
+#include "memory_protection.h"
 #include "sensors/proximity.h"
 #include "audio/microphone.h"
 #include <motors.h>
@@ -24,13 +24,10 @@
 #include <main.h>
 #include <command_module.h>
 
+//---- GENERAL BUS DECLARATION ----
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
-
-//----------Defines-----------
-
-//#define DEBUG
 
 //--------- FUNCTIONS ---------
 
@@ -59,15 +56,14 @@ int main(void)
 	#ifdef DEBUG
     //starts the serial communication
     serial_start();
-	#endif
-
     //starts the USB communication
-//    usb_start();
+    usb_start();
+	#endif
 
     //inits the motors
     motors_init();
 
-    //inits the IR sensors
+    //inits the IR sensors and the message bus
     proximity_start();
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 

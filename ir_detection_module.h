@@ -9,8 +9,7 @@
 
 //--------- INCLUDES --------
 
-#include <sensors/proximity.h>
-
+#include <stdint.h>
 
 //--------- DEFINES ---------
 

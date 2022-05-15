@@ -6,6 +6,7 @@
 //--------- INCLUDES --------
 
 #include "ir_detection_module.h"
+#include <sensors/proximity.h>
 #include <ch.h>
 #include <msgbus/messagebus.h>
 #include "hal.h"

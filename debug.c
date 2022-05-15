@@ -1,14 +1,12 @@
 #include <debug.h>
 #include <stdlib.h>
 
-
-
-
 //returns a string of a binary number n of length len
 char* toBinary(int n, int len)
 {
     char* binary = (char*)malloc(sizeof(char) * len+2);
     // !!! WARNING LEADS TO CRASH !!!
+    // this function needs to be used very carefully and only for debug purpose
 
     int k = 0;
     for (unsigned i = (1 << (len - 1)); i > 0; i = i / 2) {

@@ -4,27 +4,26 @@
 //Version	 	: 1
 
 //--------- INCLUDES --------
-#include<leds_animation.h>
-#include<leds.h>
-#include<spi_comm.h>
-#include<math.h>
+#include <leds_animation.h>
+#include <leds.h>
+
 //--------- DEFINES ---------
 #define NUMBER_OF_LEDS 8
 #define NUMBER_OF_NORMAL_LEDS 4
 #define NUMBER_OF_RGB_LEDS 4
 #define RGB 3
 
-#define ON 1
+#define ON 	1
 #define OFF 0
 
-#define RED 0
+#define RED   0
 #define GREEN 1
-#define BLUE 2
+#define BLUE  2
 
-#define ORANGE 90,50,20
-#define BRIGHT_BLUE 20,50,90
-#define PURPLE 80, 80, 100
-#define RGB_LED_OFF 0,0,0
+#define ORANGE 		90, 50, 20
+#define BRIGHT_BLUE 20, 50, 90
+#define PURPLE 		80, 80, 100
+#define RGB_LED_OFF 0 , 0 , 0
 
 //--------- FUNCTIONS ---------
 

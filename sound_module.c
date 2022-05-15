@@ -36,8 +36,8 @@
 #define FREQ_E		42	//659.25 Hz (E5)
 #define FREQ_F		45	//698.46 Hz (F5)
 #define FREQ_G		50	//783.99 Hz (G5)
-#define FREQ_A		57	//880.00 Hz (A5)
-#define FREQ_B		65	//987.77 Hz (B5)
+#define FREQ_A		57	//880.00 Hz (A5) the index was manually increased from 56 to 57
+#define FREQ_B		65	//987.77 Hz (B5) the index was manually increased from 63 to 65
 #define MAX_FREQ	67	//we don't analyze after this index to not use resources for nothing
 
 
@@ -89,6 +89,7 @@ void processAudioData(int16_t *data, uint16_t num_samples)
 	}
 	if(nb_samples >= (2 * FFT_SIZE))
 	{
+		//computes the FFT of the signal then the magnitude of complex FFT value
 		arm_cfft_f32(&arm_cfft_sR_f32_len1024, micBack_cmplx_input, 0, 1);
 		arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
 
@@ -142,6 +143,7 @@ pitch pitch_finder(float* data)
 }
 
 //adds a note to an array of the last sampled notes.
+//last_notes works like a circular buffer
 
 void add_note(pitch pitch_to_add)
 {
@@ -160,7 +162,6 @@ void add_note(pitch pitch_to_add)
 
 //checks if the same note has been sampled a certain number of times, this allows to get rid of some
 //unexpected reactions due to noise
-
 
 uint8_t check_all_same()
 {

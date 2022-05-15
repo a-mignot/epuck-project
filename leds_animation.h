@@ -8,7 +8,7 @@
 #define LEDS_ANIMATION_H
 
 //--------- INCLUDES --------
-#include <ch.h>
+#include <stdint.h>
 //--------- DEFINES ---------
 
 
