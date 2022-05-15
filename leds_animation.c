@@ -92,37 +92,52 @@ void set_leds_from_byte(uint8_t desiredStates)
 	}
 }
 
-void front_back_flash(uint8_t direction)
+void front_back_flash(uint8_t direction, uint8_t sequence_stage)
 {
 	if(direction == FORWARD)
 	{
-		set_save_rgb_led(LED2,ORANGE);
-		set_save_rgb_led(LED8,ORANGE);
-		chThdSleepMilliseconds(100);
-		set_save_rgb_led(LED2,RGB_LED_OFF);
-		set_save_rgb_led(LED8,RGB_LED_OFF);
-		chThdSleepMilliseconds(100);
-		set_save_rgb_led(LED2,BRIGHT_BLUE);
-		set_save_rgb_led(LED8,BRIGHT_BLUE);
-		chThdSleepMilliseconds(100);
-		set_save_rgb_led(LED2,RGB_LED_OFF);
-		set_save_rgb_led(LED8,RGB_LED_OFF);
+		switch(sequence_stage)
+		{
+		case 1:
+			set_save_rgb_led(LED2,ORANGE);
+			set_save_rgb_led(LED8,ORANGE);
+			break;
+		case 2:
+			set_save_rgb_led(LED2,RGB_LED_OFF);
+			set_save_rgb_led(LED8,RGB_LED_OFF);
+			break;
+		case 3:
+			set_save_rgb_led(LED2,BRIGHT_BLUE);
+			set_save_rgb_led(LED8,BRIGHT_BLUE);
+			break;
+		case 4:
+			set_save_rgb_led(LED2,RGB_LED_OFF);
+			set_save_rgb_led(LED8,RGB_LED_OFF);
+			break;
+		}
 	}
 	if(direction == BACKWARD)
 	{
-		set_save_rgb_led(LED4,ORANGE);
-		set_save_rgb_led(LED6,ORANGE);
-		chThdSleepMilliseconds(100);
-		set_save_rgb_led(LED4,RGB_LED_OFF);
-		set_save_rgb_led(LED6,RGB_LED_OFF);
-		chThdSleepMilliseconds(100);
-		set_save_rgb_led(LED4,BRIGHT_BLUE);
-		set_save_rgb_led(LED6,BRIGHT_BLUE);
-		chThdSleepMilliseconds(100);
-		set_save_rgb_led(LED4,RGB_LED_OFF);
-		set_save_rgb_led(LED6,RGB_LED_OFF);
+		switch(sequence_stage)
+		{
+		case 1:
+			set_save_rgb_led(LED4,ORANGE);
+			set_save_rgb_led(LED6,ORANGE);
+			break;
+		case 2:
+			set_save_rgb_led(LED4,RGB_LED_OFF);
+			set_save_rgb_led(LED6,RGB_LED_OFF);
+			break;
+		case 3:
+			set_save_rgb_led(LED4,BRIGHT_BLUE);
+			set_save_rgb_led(LED6,BRIGHT_BLUE);
+			break;
+		case 4:
+			set_save_rgb_led(LED4,RGB_LED_OFF);
+			set_save_rgb_led(LED6,RGB_LED_OFF);
+			break;
+		}
 	}
-
 }
 
 void side_leds_on()
@@ -146,12 +161,12 @@ void tiles_symbol()
 	set_save_led(LED7,ON);
 }
 
-void tiles_switch(uint8_t loop_number)
+void diamond_shapes(uint8_t leds_type)
 {
-	if(loop_number == 1){
+	if(leds_type == LED_TYPE_NORMAL){
 		tiles_symbol();
 	}
-	if(loop_number == 2){
+	if(leds_type == LED_TYPE_RGB){
 		set_save_rgb_led(LED2,PURPLE);
 		set_save_rgb_led(LED4,PURPLE);
 		set_save_rgb_led(LED6,PURPLE);

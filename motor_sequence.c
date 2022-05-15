@@ -7,7 +7,7 @@
 //-- Additional information --
 /*
  * In order to check if the pitch has changed or if there is a collision detected,
- * the movements of the robot need to be decomposed in tiny parts of XX ms (10ms for test)
+ * the movements of the robot need to be decomposed in tiny parts of 10 ms
  * We can't use messagebus_topic_wait() semaphores or mutexes and such as
  * because if the sleep delay of the thread is not consistent then the movement of
  * the robot won't be accurate.
@@ -16,7 +16,7 @@
 //--------- INCLUDES --------
 
 #include <motors.h>
-#include <ch.h>
+//#include <ch.h>
 
 #include <motor_sequence.h>
 #include <sound_module.h>
@@ -25,22 +25,13 @@
 
 //--------- DEFINES ---------
 
-#define MAX_SPEED 		 1000 //in step/s -> corresponds to 13 cm/s !!!NEEDS TO BE VERIFIED EXPERIMENTALLY!!!
-#define MIN_SPEED 		 100 //step/s NEEDS TO BE VERIFIED EXPERIMENTALLY AS WELL
+#define MAX_SPEED 		 1000 //in step/s -> corresponds to 13 cm/s
+#define MIN_SPEED 		 100 //step/s
 #define MOTOR_STOP_SPEED 0 //in step/s
 
 #define DELTA_T 10 //in ms
 
-#define FRONT_IR_MASK 		0b11000011 //je sais pas si c'est le meilleur endroit (module) pour mettre ces define
-#define BACK_IR_MASK 		0b00011000
-#define FRONT_RIGHT_IR_MASK 0b00000011
-#define FRONT_LEFT_IR_MASK  0b11000000
-#define BACK_LEFT_IR_MASK 	0b00010000
-#define BACK_RIGHT_IR_MASK 	0b00001000
-
 #define NO_ROTATION  0
-#define CCW_ROTATION 1
-#define CW_ROTATION -1
 
 #define DIR_FORWARD   1
 #define DIR_BACKWARD -1
@@ -48,12 +39,7 @@
 #define WHEEL_PERIMETER 13
 #define WHEEL_DISTANCE  2.675f    //cm distance from center of the robot one wheel
 #define PI 				3.14159265f
-#define WHEEL_RADIUS 	2.069f    //cm  =13/2pi
 
-#define EIGHT_SIZE_TO_RADIUS 0.59588f
-#define ARC_DEGREE_LENGTH	 280
-//this constant C corresponds to find the radius r of the arc of an eight shape from the straight part d
-//r = d*C. C corresponds to 0.5*tan(0.5a) where a is the angle (100°) between the two straight parts of the eight
 #define COLLISION_AVOIDANCE_ANGLE 90 //in °
 
 //-------- MACROS ----------
@@ -62,13 +48,34 @@
 #define DEG_TO_STEPS(DEG,RADIUS) 	CM_TO_STEPS(DEG_TO_RAD(DEG)*RADIUS)
 #define DEG_TO_RAD(DEG) 			(DEG*PI/180.0f)
 
-//--------- FUNCTIONS ---------
+//----INTERNAL FUNCTIONS DECLARATION----
 
+//These are basic sequences used to form more complex shapes
+void move_straight(uint32_t cm_needed, int16_t speed);
+void move_rotate(uint32_t degree, int16_t speed);
+void move_arc(uint32_t degree, float radius, int8_t rotation, int16_t speed);
+
+//These are the two control loops of the motors
+void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed);
+void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, float speed, float radius);
+
+//stops motors
+void move_stop(void);
+
+//rotates the e-puck whenever a future collision is detected
+void obstacle_to_avoid(int8_t direction, uint8_t collision_states);
+
+//assign ir sensors to led positions
 uint8_t mask_modification(uint8_t collision_input);
 
+//--------- FUNCTIONS ---------
 
-void move_straight(uint32_t cm_needed, int16_t speed){
-	if((speed <= -MIN_SPEED ||speed >= MIN_SPEED) && cm_needed != 0){
+
+
+void move_straight(uint32_t cm_needed, int16_t speed)
+{
+	if((speed <= -MIN_SPEED ||speed >= MIN_SPEED) && cm_needed != 0)
+	{
 		move_control_loop(CM_TO_STEPS(cm_needed),NO_ROTATION,speed);
 	}
 	move_stop();
@@ -76,21 +83,27 @@ void move_straight(uint32_t cm_needed, int16_t speed){
 
 //positive speed : counter-clockwise rotation
 //negative speed : clockwise rotation
-void move_rotate(uint32_t degree, int16_t speed){
-	if(degree != 0){
-		if(speed > MIN_SPEED){
+void move_rotate(uint32_t degree, int16_t speed)
+{
+	if(degree != 0)
+	{
+		if(speed > MIN_SPEED)
+		{
 			move_control_loop(DEG_TO_STEPS(degree,WHEEL_DISTANCE),CCW_ROTATION,speed);
 		}
-		if(speed < -MIN_SPEED){
+		if(speed < -MIN_SPEED)
+		{
 			move_control_loop(DEG_TO_STEPS(degree,WHEEL_DISTANCE),CW_ROTATION,speed);
 		}
 	}
 	move_stop();
 }
 
-void move_triangle(uint32_t vertice_size, int16_t speed){
-	while(1){
-		leds_triangle();
+void move_triangle(uint32_t vertice_size, int16_t speed)
+{
+	leds_triangle();
+	while(1)
+	{
 		move_straight(vertice_size,speed);
 		if(get_pitch_changed()) return;
 		move_rotate(120,speed);
@@ -98,19 +111,35 @@ void move_triangle(uint32_t vertice_size, int16_t speed){
 	}
 }
 
-void move_straight_back_forth(uint32_t size, int16_t speed){
-	while(1){
+void move_straight_back_forth(uint32_t size, int16_t speed)
+{
+	while(1)
+	{
 		move_straight(size,speed);
-		front_back_flash(FORWARD);
+		if(get_pitch_changed()) return;
+		for(uint8_t i= 1; i < FLASH_NUMBER_OF_STAGES+1 ; i++)
+		{
+			front_back_flash(FORWARD, i);
+			if(get_pitch_changed()) return;
+			chThdSleepMilliseconds(100);
+		}
 		if(get_pitch_changed()) return;
 		move_straight(size,-speed);
-		front_back_flash(BACKWARD);
+		if(get_pitch_changed()) return;
+		for(uint8_t i= 1; i < FLASH_NUMBER_OF_STAGES+1 ; i++)
+		{
+			front_back_flash(BACKWARD, i);
+			if(get_pitch_changed()) return;
+			chThdSleepMilliseconds(100);
+		}
 		if(get_pitch_changed()) return;
 	}
 }
 
-void move_rotate_back_forth(uint32_t degree, int16_t speed){
-	while(1){
+void move_rotate_back_forth(uint32_t degree, int16_t speed)
+{
+	while(1)
+	{
 		move_rotate(degree,speed);
 		if(get_pitch_changed()) return;
 		move_rotate(degree,-speed);
@@ -119,24 +148,24 @@ void move_rotate_back_forth(uint32_t degree, int16_t speed){
 	}
 }
 
-void move_circle(float radius, int8_t rotation, int16_t speed){
+void move_circle(float radius, int8_t rotation, int16_t speed)
+{
 	side_leds_on();
-	while(1){
+	while(1)
+	{
 		move_arc(360,radius,rotation,speed);
 		if(get_pitch_changed()) return;
 	}
 }
 
-void move_eight_shape(uint32_t straight_size, int16_t speed){
-	while(1){
-//		move_straight(straight_size,speed);
-//		if(get_pitch_changed()) return;
-		tiles_switch(1);
+void move_eight_shape(uint32_t straight_size, int16_t speed)
+{
+	while(1)
+	{
+		diamond_shapes(LED_TYPE_NORMAL);
 		move_arc(360,straight_size,CCW_ROTATION,speed);
 		if(get_pitch_changed()) return;
-//		move_straight(straight_size,speed);
-//		if(get_pitch_changed()) return;
-		tiles_switch(2);
+		diamond_shapes(LED_TYPE_RGB);
 		move_arc(360,straight_size,CW_ROTATION,speed);
 		if(get_pitch_changed()) return;
 		clear_top_leds();
@@ -144,8 +173,10 @@ void move_eight_shape(uint32_t straight_size, int16_t speed){
 }
 
 
-void move_arc(uint32_t degree, float radius, int8_t rotation, int16_t speed){
-	if((speed <= -MIN_SPEED ||speed >= MIN_SPEED) && degree != 0){
+void move_arc(uint32_t degree, float radius, int8_t rotation, int16_t speed)
+{
+	if((speed <= -MIN_SPEED ||speed >= MIN_SPEED) && degree != 0)
+	{
 		move_control_loop_curve(DEG_TO_STEPS(degree,radius),rotation,speed,radius);
 	}
 	move_stop();
@@ -297,10 +328,12 @@ uint8_t mask_modification(uint8_t collision_input)
 	return converted_output;
 }
 
+//Inits sound and ir modules in order for motor_sequences to work
 
-void motor_sequence_start()
+void ir_and_sound_init()
 {
 	collision_detection_start();
+	sound_module_start();
 }
 
 void leds_reset()

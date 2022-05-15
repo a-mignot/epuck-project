@@ -11,33 +11,22 @@
 
 //--------- DEFINES ---------
 
-
-//--------- PROTOTYPES --------
-
+#define CW_ROTATION -1
+#define CCW_ROTATION 1
 
 //--------- PROTOTYPES ---------
 
-//These are basic sequences used to form more complex shapes
-void move_straight(uint32_t cm_needed, int16_t speed);
-void move_rotate(uint32_t degree, int16_t speed);
-void move_arc(uint32_t degree, float radius, int8_t rotation, int16_t speed);
-
 //These are the different sequences/shapes that the robot can make
-//More sequences could be added
 void move_triangle(uint32_t vertice_size, int16_t speed);
 void move_straight_back_forth(uint32_t size, int16_t speed);
 void move_rotate_back_forth(uint32_t degree, int16_t speed);
 void move_circle(float radius, int8_t rotation, int16_t speed);
 void move_eight_shape(uint32_t straight_size, int16_t speed);
 
-//These are the two control loops of the motors
-void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed);
-void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t speed, float radius);
+//inits collision detection thread and sound module for motor_sequence
+void ir_and_sound_init(void);
 
-void move_stop(void);
-
-void obstacle_to_avoid(int8_t direction, uint8_t collision_states);
-void motor_sequence_start(void);
+//turns off every led on top of the e-puck
 void leds_reset(void);
 
 #endif

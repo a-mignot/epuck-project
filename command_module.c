@@ -7,13 +7,26 @@
 
 //--------- INCLUDES --------
 #include <ch.h>
-#include "hal.h"
+//#include "hal.h"
 
 #include <command_module.h>
 #include <sound_module.h>
 #include <motor_sequence.h>
 
 //--------- DEFINES ---------
+
+//constants for sequences
+#define STRAIGHT_SPEED 1000
+#define ROTATION_SPEED 500
+#define ROTATE_BACK_FORTH_DEGREE 20
+#define MOVE_STRAIGHT_DISTANCE 15
+#define MOVE_CIRCLE_RADIUS 10
+
+#define COMMAND_THREAD_SIZE 1024
+
+//----INTERNAL FUNCTIONS DECLARATION----
+
+void launchSequenceFromPitch(pitch note);
 
 
 //--------- FUNCTIONS ---------
@@ -30,38 +43,31 @@ static THD_FUNCTION(command_thd, arg){
 	for(;;){
 		set_pitch_changed(PITCH_UNCHANGED);
 		launchSequenceFromPitch(get_current_pitch());
-	//	static int first_time = 0;
-//		if(first_time == 0){move_arc(180,7.3,1,400);first_time=1;}
 	}
-
 }
 
 //Takes a pitch in input and executes the sequence corresponding to it
 
 void launchSequenceFromPitch(pitch note)
 {
-	static int first_time = 0;
 	switch(note)
 	{
-//	case PITCH_C:
-//		break;
 	case PITCH_D:
-		//move_triangle(15,1000);
+		move_triangle(MOVE_STRAIGHT_DISTANCE,STRAIGHT_SPEED);
 		break;
 	case PITCH_E:
-		move_straight_back_forth(15,1000);
+		move_straight_back_forth(MOVE_STRAIGHT_DISTANCE,STRAIGHT_SPEED);
 		break;
 	case PITCH_F:
-		move_rotate_back_forth(20,550);
+		move_rotate_back_forth(ROTATE_BACK_FORTH_DEGREE,ROTATION_SPEED);
 		break;
 	case PITCH_G:
-		move_circle(7.3,1,1000);
+		move_circle(MOVE_CIRCLE_RADIUS,CCW_ROTATION,STRAIGHT_SPEED);
 		break;
 	case PITCH_A:
-		move_eight_shape(10,500);
+		move_eight_shape(MOVE_CIRCLE_RADIUS,ROTATION_SPEED);
 		break;
 	case PITCH_B:
-		if(first_time == 0){move_arc(360,10,1,500);first_time=1;}
 		break;
 	default:
 		//do default
@@ -70,11 +76,12 @@ void launchSequenceFromPitch(pitch note)
 	leds_reset();
 }
 
-//initializes the command Thread with a normal priority (potentiellement à changer du coup)
 
 void command_start(){
-	motor_sequence_start();
-	static THD_WORKING_AREA(command_thd_wa, 1024); // taille à fix en fonction de ce que j'ajoute comme variables
+
+	ir_and_sound_init();
+
+	//initializes the command Thread with a normal priority
+	static THD_WORKING_AREA(command_thd_wa, COMMAND_THREAD_SIZE);
 	chThdCreateStatic(command_thd_wa, sizeof(command_thd_wa), NORMALPRIO, command_thd, NULL);
 }
-

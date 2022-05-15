@@ -13,7 +13,7 @@
 #include <audio/microphone.h>
 
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #include <debug.h>
@@ -164,6 +164,12 @@ uint8_t check_all_same()
 		}
 	}
 	return 1;
+}
+
+void sound_module_start()
+{
+	//inits the microphone and the callback function
+	mic_start(&processAudioData);
 }
 
 

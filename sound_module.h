@@ -38,6 +38,7 @@ pitch pitch_finder(float* data);
 void set_pitch_changed(uint8_t new_state);
 int get_pitch_changed(void);
 int get_current_pitch(void);
+void sound_module_start(void);
 
 
 #endif
