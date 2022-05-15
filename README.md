@@ -6,5 +6,5 @@ In order to run the project, put the lib file at the same level as "epuck-projec
 
 ![Screenshot](files.PNG)
 
-![Screenshot](epuckProject-Code-architecture-clean.png)
+![Screenshot](flowchart.jpeg)
 
