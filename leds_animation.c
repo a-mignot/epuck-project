@@ -37,14 +37,14 @@ void set_save_rgb_led(uint8_t led_number, uint8_t red, uint8_t green, uint8_t bl
 
 static uint8_t leds_states[NUMBER_OF_NORMAL_LEDS];
 static uint8_t rgb_leds_states[NUMBER_OF_RGB_LEDS][RGB];
+static int round_led_cycle = 0;
 
 //Circle animation with leds
 
 void round_led_spin(uint16_t red, uint16_t green, uint16_t blue)
 {
-	static int cycle = 0;
 	static int on_off = ON;
-	switch(cycle)
+	switch(round_led_cycle)
 	{
 	case 0:
 		set_save_led(LED1,on_off);
@@ -71,14 +71,14 @@ void round_led_spin(uint16_t red, uint16_t green, uint16_t blue)
 		set_save_rgb_led(LED8,on_off*red,on_off*green,on_off*blue);
 		break;
 	}
-	if(cycle==7)
+	if(round_led_cycle==7)
 	{
 		on_off = (on_off == ON) ? OFF : ON;
-		cycle = 0;
+		round_led_cycle = 0;
 	}
 	else
 	{
-		cycle++;
+		round_led_cycle++;
 	}
 }
 
@@ -190,6 +190,11 @@ void clear_top_leds()
 		set_save_led(i,OFF);
 		set_save_rgb_led(i, RGB_LED_OFF);
 	}
+}
+
+void reset_round_led_cycle()
+{
+	round_led_cycle = 0;
 }
 
 //turns on a specific normal led and saves its state in a static array

@@ -351,6 +351,11 @@ void ir_and_sound_init()
 	sound_module_start();
 }
 
+void reset_back_and_forth_led_sequence()
+{
+	reset_round_led_cycle();
+}
+
 void leds_reset()
 {
 	clear_top_leds();

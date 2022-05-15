@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 //returns a string of a binary number n of length len
+//taken from https://www.techiedelight.com/binary-representation-number/ (consulted 15.05.2022, online)
 char* toBinary(int n, int len)
 {
     char* binary = (char*)malloc(sizeof(char) * len+2);

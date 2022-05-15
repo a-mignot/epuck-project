@@ -60,6 +60,7 @@ void launchSequenceFromPitch(pitch note)
 		break;
 	case PITCH_F:
 		move_rotate_back_forth(ROTATE_BACK_FORTH_DEGREE,ROTATION_SPEED);
+		reset_back_and_forth_led_sequence();
 		break;
 	case PITCH_G:
 		move_circle(MOVE_CIRCLE_RADIUS,CCW_ROTATION,STRAIGHT_SPEED);

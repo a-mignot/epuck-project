@@ -29,6 +29,9 @@ void ir_and_sound_init(void);
 //turns off every led on top of the e-puck
 void leds_reset(void);
 
+//reset for a led animation
+void reset_back_and_forth_led_sequence(void);
+
 #endif
 
 //--------- END OF FILE ---------

@@ -42,6 +42,9 @@ void clear_top_leds(void);
 //allows to restore all temporarily changed leds states
 void restore_all_leds_states(void);
 
+//resets the cycle counter for the animation to start again
+void reset_round_led_cycle(void);
+
 #endif
 
 //--------- END OF FILE ---------
