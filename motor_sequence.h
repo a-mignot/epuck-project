@@ -38,6 +38,7 @@ void move_stop(void);
 
 void obstacle_to_avoid(int8_t direction, uint8_t collision_states);
 void motor_sequence_start(void);
+void leds_reset(void);
 
 #endif
 

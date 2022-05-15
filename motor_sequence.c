@@ -90,6 +90,7 @@ void move_rotate(uint32_t degree, int16_t speed){
 
 void move_triangle(uint32_t vertice_size, int16_t speed){
 	while(1){
+		leds_triangle();
 		move_straight(vertice_size,speed);
 		if(get_pitch_changed()) return;
 		move_rotate(120,speed);
@@ -100,8 +101,10 @@ void move_triangle(uint32_t vertice_size, int16_t speed){
 void move_straight_back_forth(uint32_t size, int16_t speed){
 	while(1){
 		move_straight(size,speed);
+		front_back_flash(FORWARD);
 		if(get_pitch_changed()) return;
 		move_straight(size,-speed);
+		front_back_flash(BACKWARD);
 		if(get_pitch_changed()) return;
 	}
 }
@@ -112,11 +115,12 @@ void move_rotate_back_forth(uint32_t degree, int16_t speed){
 		if(get_pitch_changed()) return;
 		move_rotate(degree,-speed);
 		if(get_pitch_changed()) return;
-		round_led_spin(100,0,0);
+		round_led_spin(MAX_INTENSITY,0,0);
 	}
 }
 
 void move_circle(float radius, int8_t rotation, int16_t speed){
+	side_leds_on();
 	while(1){
 		move_arc(360,radius,rotation,speed);
 		if(get_pitch_changed()) return;
@@ -127,12 +131,15 @@ void move_eight_shape(uint32_t straight_size, int16_t speed){
 	while(1){
 //		move_straight(straight_size,speed);
 //		if(get_pitch_changed()) return;
+		tiles_switch(1);
 		move_arc(360,straight_size,CCW_ROTATION,speed);
 		if(get_pitch_changed()) return;
 //		move_straight(straight_size,speed);
 //		if(get_pitch_changed()) return;
+		tiles_switch(2);
 		move_arc(360,straight_size,CW_ROTATION,speed);
 		if(get_pitch_changed()) return;
+		clear_top_leds();
 	}
 }
 
@@ -236,18 +243,25 @@ void obstacle_to_avoid(int8_t direction, uint8_t collision_states){
 //the response of the system must be fast so we chose to put max_speed for the rotation
 	if(direction == DIR_FORWARD  && (collision_states & FRONT_IR_MASK)){
 		set_leds_from_byte(mask_modification(collision_states & FRONT_IR_MASK));
-		if(collision_states & FRONT_RIGHT_IR_MASK) move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
-		else if(collision_states & FRONT_LEFT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
+		if(collision_states & FRONT_RIGHT_IR_MASK)
+			{
+				move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
+			}
+		else if(collision_states & FRONT_LEFT_IR_MASK)
+			{
+				move_rotate(COLLISION_AVOIDANCE_ANGLE,-MAX_SPEED);
+			}
+		restore_all_leds_states();
 	}
 	if(direction == DIR_BACKWARD && (collision_states & BACK_IR_MASK)){
 		set_leds_from_byte(mask_modification(collision_states & BACK_IR_MASK));
 		if(collision_states & BACK_RIGHT_IR_MASK)  move_rotate(COLLISION_AVOIDANCE_ANGLE, -MAX_SPEED);
 		else if(collision_states & BACK_LEFT_IR_MASK)   move_rotate(COLLISION_AVOIDANCE_ANGLE, MAX_SPEED);
+		restore_all_leds_states();
 	}
-	clear_top_leds();
 }
 
-//Modifies the collision states in order for them to correspond to the leds near to each IR sensor
+//Assigns the collision states to the leds next to each IR proximity sensor
 
 uint8_t mask_modification(uint8_t collision_input)
 {
@@ -283,11 +297,16 @@ uint8_t mask_modification(uint8_t collision_input)
 	return converted_output;
 }
 
+
 void motor_sequence_start()
 {
 	collision_detection_start();
 }
 
+void leds_reset()
+{
+	clear_top_leds();
+}
 
 
 //--------- END OF FILE ---------

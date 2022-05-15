@@ -58,15 +58,16 @@ void launchSequenceFromPitch(pitch note)
 		move_circle(7.3,1,1000);
 		break;
 	case PITCH_A:
-		move_eight_shape(10,1000);
+		move_eight_shape(10,500);
 		break;
 	case PITCH_B:
-		if(first_time == 0){move_arc(280,7.3,1,400);first_time=1;}
+		if(first_time == 0){move_arc(360,10,1,500);first_time=1;}
 		break;
 	default:
 		//do default
 		break;
 	}
+	leds_reset();
 }
 
 //initializes the command Thread with a normal priority (potentiellement à changer du coup)
