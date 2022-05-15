@@ -57,7 +57,7 @@ void move_arc(uint32_t degree, float radius, int8_t rotation, int16_t speed);
 
 //These are the two control loops of the motors
 void move_control_loop(uint32_t steps_needed, int8_t rotation, int16_t speed);
-void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, float speed, float radius);
+void move_control_loop_curve(uint32_t steps_needed, int8_t rotation, int16_t speed, float radius);
 
 //stops motors
 void move_stop(void);
