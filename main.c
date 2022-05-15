@@ -15,20 +15,26 @@
 #include "hal.h"
 #include "memory_protection.h"
 #include <usbcfg.h>
-#include <chprintf.h>
-#include <motors.h>
 #include "sensors/proximity.h"
+#include "audio/microphone.h"
+#include <motors.h>
+#include <spi_comm.h>
 
 // PROJECT MODULES
 #include <main.h>
-#include <ir_detection_module.h>
+#include <command_module.h>
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
+//----------Defines-----------
+
+//#define DEBUG
+
 //--------- FUNCTIONS ---------
 
+#ifdef DEBUG
 static void serial_start(void)
 {
 	static SerialConfig ser_cfg = {
@@ -40,6 +46,7 @@ static void serial_start(void)
 
 	sdStart(&SD3, &ser_cfg); // UART3.
 }
+#endif
 
 
 int main(void)
@@ -49,21 +56,31 @@ int main(void)
     chSysInit();
     mpu_init();
 
+	#ifdef DEBUG
     //starts the serial communication
     serial_start();
+	#endif
+
     //starts the USB communication
-    usb_start();
+//    usb_start();
+
     //inits the motors
     motors_init();
-    proximity_start();
-    collision_detection_start();
 
+    //inits the IR sensors
+    proximity_start();
     messagebus_init(&bus, &bus_lock, &bus_condvar);
 
+    //inits spi communication for rgb leds
+    spi_comm_start();
+
+    //inits the thread that triggers the different motor sequences
+    command_start();
 
     //default infinite loop
-    while(1){
-
+    while(1)
+    {
+    	chThdSleepMilliseconds(100);
     }
 }
 

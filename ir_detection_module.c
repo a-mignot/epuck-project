@@ -36,7 +36,17 @@
 #define IR3_THRESHOLD DEFAULT_IR_TRESHOLD
 #define IR4_THRESHOLD IR3_THRESHOLD
 
+#define IR_THREAD_SIZE 1024
+
 extern messagebus_t bus;
+
+//--------- STATIC VARIABLES ---------
+
+static uint8_t collision_states = 0;
+
+//----INTERNAL FUNCTIONS DECLARATION----
+
+uint8_t collision_detection(proximity_msg_t *prox_values);
 
 //--------- FUNCTIONS ---------
 
@@ -49,9 +59,8 @@ extern messagebus_t bus;
  *
  * A 0 means that there is no collision detected.
  */
-
-
-uint8_t collision_detection(proximity_msg_t *prox_values){
+uint8_t collision_detection(proximity_msg_t *prox_values)
+{
 	uint8_t collision_state = 0;
 
 
@@ -62,11 +71,14 @@ uint8_t collision_detection(proximity_msg_t *prox_values){
 															   IR6_THRESHOLD, IR7_THRESHOLD};
 
 
-	for(int i=0;i<PROXIMITY_NB_CHANNELS;i++){
+	for(int i=0;i<PROXIMITY_NB_CHANNELS;i++)
+	{
 		//the calibrated value can be negative so we cast the delta and initValues from uint to int
 		int calibrated_value = (int)prox_values->delta[i] - (int)prox_values->initValue[i];
 
-		if(calibrated_value >= threshold_table[i]){
+		if(calibrated_value >= threshold_table[i])
+		{
+			//sets the bit of rank i if the value is higher than the threshold
 			collision_state = (collision_state | (1 << i));
 		}
 	}
@@ -74,7 +86,8 @@ uint8_t collision_detection(proximity_msg_t *prox_values){
 	return collision_state;
 }
 
-static THD_FUNCTION(collision_detection_thd, arg){
+static THD_FUNCTION(collision_detection_thd, arg)
+{
 	(void) arg;
 	chRegSetThreadName(__FUNCTION__);
 
@@ -90,7 +103,7 @@ static THD_FUNCTION(collision_detection_thd, arg){
 		messagebus_topic_wait(prox_topic, &prox_values, sizeof(prox_values));
 
 
-		uint8_t collision_states = collision_detection(&prox_values);
+		collision_states = collision_detection(&prox_values);
 
 #ifdef DEBUG
 		//chprintf((BaseSequentialStream *)&SD3,"%Proximity=%-7d Calib. Proximity=%-7d Ambient light=%-7d \r\n"
@@ -103,9 +116,18 @@ static THD_FUNCTION(collision_detection_thd, arg){
 
 }
 
-void collision_detection_start(){
-	 static THD_WORKING_AREA(collision_detection_thd_wa, 1024);
-	 chThdCreateStatic(collision_detection_thd_wa, sizeof(collision_detection_thd_wa), NORMALPRIO, collision_detection_thd, NULL);
+void collision_detection_start()
+{
+	static THD_WORKING_AREA(collision_detection_thd_wa, IR_THREAD_SIZE);
+	chThdCreateStatic(collision_detection_thd_wa, sizeof(collision_detection_thd_wa),
+					  NORMALPRIO, collision_detection_thd, NULL);
+}
+
+//getter for the module static variables that are needed externally
+
+uint8_t get_collision_states()
+{
+	return collision_states;
 }
 
 
